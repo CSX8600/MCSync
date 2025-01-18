@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ClussPro.Base.Data.Query;
 using ClussPro.ObjectBasedFramework;
+using ClussPro.ObjectBasedFramework.DataSearch;
 using ClussPro.ObjectBasedFramework.Schema.Attributes;
 using ClussPro.ObjectBasedFramework.Validation.Attributes;
 using WebModels.mesasys;
+using WebModels.purchasing;
 
 namespace WebModels.invoicing
 {
@@ -87,11 +90,58 @@ namespace WebModels.invoicing
             get { CheckGet(); return _item; }
         }
 
+        private long? _purchaseOrderLineID;
+        [Field("652351BD-3E6A-4D68-BC0F-BA28205E1BCE")]
+        public long? PurchaseOrderLineID
+        {
+            get { CheckGet(); return _purchaseOrderLineID; }
+            set { CheckSet(); _purchaseOrderLineID = value; }
+        }
+
+        private PurchaseOrderLine _purchaseOrderLine = null;
+        [Relationship("D405FE2F-B756-434E-9350-20C5BD277714")]
+        public PurchaseOrderLine PurchaseOrderLine
+        {
+            get { CheckGet(); return _purchaseOrderLine; }
+        }
+
+        private Fulfillment _fulfillment = null;
+        [Relationship("21B6EF16-D1F4-4F0E-87BC-D34971D19192", OneToOneByForeignKey = true)]
+        public Fulfillment Fulfillment
+        {
+            get { CheckGet(); return _fulfillment; }
+        }
+
         protected override void PreValidate()
         {
             base.PreValidate();
 
             Total = Math.Round((Quantity ?? 0M) * (UnitCost ?? 0M), 2, MidpointRounding.AwayFromZero);
+        }
+
+        protected override bool PreSave(ITransaction transaction)
+        {
+            if (!IsInsert && IsFieldDirty(nameof(PurchaseOrderLineID)) && PurchaseOrderLineID == null)
+            {
+                Search<Fulfillment> fulfillmentSearch = new Search<Fulfillment>(new LongSearchCondition<Fulfillment>()
+                {
+                    Field = nameof(Fulfillment.InvoiceLineID),
+                    SearchConditionType = SearchCondition.SearchConditionTypes.Equals,
+                    Value = InvoiceLineID
+                });
+
+                foreach (Fulfillment fulfillment in fulfillmentSearch.GetEditableReader(transaction))
+                {
+                    fulfillment.PurchaseOrderLineID = null;
+                    if (!fulfillment.Save(transaction))
+                    {
+                        Errors.AddRange(fulfillment.Errors.ToArray());
+                        return false;
+                    }
+                }
+            }
+
+            return base.PreSave(transaction);
         }
 
         protected override bool PostSave(ITransaction transaction)

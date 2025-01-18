@@ -44,6 +44,7 @@ namespace API_Company.Controllers
             $"{nameof(Location.LocationEmployees)}.{nameof(LocationEmployee.ManagePrices)}",
             $"{nameof(Location.LocationEmployees)}.{nameof(LocationEmployee.ManageRegisters)}",
             $"{nameof(Location.LocationEmployees)}.{nameof(LocationEmployee.ManageInventory)}",
+            $"{nameof(Location.LocationEmployees)}.{nameof(LocationEmployee.ManagePurchaseOrders)}",
             $"{nameof(Location.LocationEmployees)}.{nameof(LocationEmployee.Employee)}.{nameof(Employee.EmployeeID)}",
             $"{nameof(Location.LocationEmployees)}.{nameof(LocationEmployee.Employee)}.{nameof(Employee.EmployeeName)}",
             $"{nameof(Location.LocationGovernments)}.{nameof(LocationGovernment.LocationGovernmentID)}",

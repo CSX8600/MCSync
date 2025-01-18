@@ -251,7 +251,8 @@ namespace CompanyStudio
             ManageInvoices,
             ManagePrices,
             ManageRegisters,
-            ManageInventory
+            ManageInventory,
+            ManagePurchaseOrders
         }
 
         public class CompanyWidePermissionChangeEventArgs : EventArgs

@@ -61,6 +61,7 @@
             this.txtName = new System.Windows.Forms.TextBox();
             this.loaderMain = new FleetTracking.Loader();
             this.dataGridViewStylizer = new FleetTracking.DataGridViewStylizer(this.components);
+            this.tsmiPrintBOLs = new System.Windows.Forms.ToolStripButton();
             this.toolStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvStock)).BeginInit();
@@ -75,7 +76,8 @@
             this.toolStripSeparator1,
             this.toolModify,
             this.toolStripSeparator2,
-            this.toolPrint});
+            this.toolPrint,
+            this.tsmiPrintBOLs});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(641, 38);
@@ -87,7 +89,7 @@
             this.toolAddTrack.Image = global::FleetTracking.Properties.Resources.add;
             this.toolAddTrack.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolAddTrack.Name = "toolAddTrack";
-            this.toolAddTrack.Size = new System.Drawing.Size(63, 35);
+            this.toolAddTrack.Size = new System.Drawing.Size(64, 35);
             this.toolAddTrack.Text = "Add Track";
             this.toolAddTrack.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             this.toolAddTrack.Click += new System.EventHandler(this.toolAddTrack_Click);
@@ -98,7 +100,7 @@
             this.toolDeleteTrack.Image = global::FleetTracking.Properties.Resources.delete;
             this.toolDeleteTrack.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolDeleteTrack.Name = "toolDeleteTrack";
-            this.toolDeleteTrack.Size = new System.Drawing.Size(74, 35);
+            this.toolDeleteTrack.Size = new System.Drawing.Size(75, 35);
             this.toolDeleteTrack.Text = "Delete Track";
             this.toolDeleteTrack.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             this.toolDeleteTrack.Click += new System.EventHandler(this.toolDeleteTrack_Click);
@@ -129,8 +131,8 @@
             this.toolPrint.Image = global::FleetTracking.Properties.Resources.printer;
             this.toolPrint.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolPrint.Name = "toolPrint";
-            this.toolPrint.Size = new System.Drawing.Size(36, 35);
-            this.toolPrint.Text = "Print";
+            this.toolPrint.Size = new System.Drawing.Size(67, 35);
+            this.toolPrint.Text = "Print Track";
             this.toolPrint.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             this.toolPrint.Click += new System.EventHandler(this.toolPrint_Click);
             // 
@@ -372,6 +374,17 @@
             this.loaderMain.TabIndex = 1;
             this.loaderMain.Visible = false;
             // 
+            // tsmiPrintBOLs
+            // 
+            this.tsmiPrintBOLs.Enabled = false;
+            this.tsmiPrintBOLs.Image = global::FleetTracking.Properties.Resources.printer;
+            this.tsmiPrintBOLs.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsmiPrintBOLs.Name = "tsmiPrintBOLs";
+            this.tsmiPrintBOLs.Size = new System.Drawing.Size(88, 35);
+            this.tsmiPrintBOLs.Text = "Net Print BOLs";
+            this.tsmiPrintBOLs.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.tsmiPrintBOLs.Click += new System.EventHandler(this.tsmiPrintBOLs_Click);
+            // 
             // TrackViewer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -430,5 +443,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn colDest;
         private System.Windows.Forms.DataGridViewTextBoxColumn colStrategicDest;
         private System.Windows.Forms.DataGridViewTextBoxColumn colContents;
+        private System.Windows.Forms.ToolStripButton tsmiPrintBOLs;
     }
 }

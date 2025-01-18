@@ -20,6 +20,8 @@ namespace GovernmentPortal.Invoicing
             _governmentId = governmentID;
         }
 
+        public long? InitiallySelectedInvoiceID { get; set; }
+
         internal override Icon ExplorerIcon => Properties.Resources.icn_money_delete;
 
         internal override IExplorerControl<Invoice> GetControlForModel(Invoice model)
@@ -55,5 +57,15 @@ namespace GovernmentPortal.Invoicing
         }
 
         internal override string ObjectDisplayName => "Payable Invoice";
+
+        internal override DropDownItem<Invoice> GetInitiallySelectedItem(IReadOnlyCollection<DropDownItem<Invoice>> items)
+        {
+            if (InitiallySelectedInvoiceID == null)
+            {
+                return base.GetInitiallySelectedItem(items);
+            }
+
+            return items.FirstOrDefault(i => i.Object.InvoiceID == InitiallySelectedInvoiceID) ?? base.GetInitiallySelectedItem(items);
+        }
     }
 }

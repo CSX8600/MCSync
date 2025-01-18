@@ -129,7 +129,7 @@ namespace CompanyStudio.Invoicing
             Studio.DecorateStudioContent(frmReceivableInvoice);
             frmReceivableInvoice.Company = Company;
             frmReceivableInvoice.LocationModel = LocationModel;
-            frmReceivableInvoice.Invoice = (Invoice)lstInvoices.SelectedItems[0].Tag;
+            frmReceivableInvoice.InvoiceID = ((Invoice)lstInvoices.SelectedItems[0].Tag).InvoiceID;
             frmReceivableInvoice.OnSave += frmReceivableInvoice_OnSave;
             frmReceivableInvoice.FormClosed += frmReceivableInvoice_FormClosed;
             frmReceivableInvoice.Show(Studio.dockPanel, WeifenLuo.WinFormsUI.Docking.DockState.Document);
@@ -198,7 +198,7 @@ namespace CompanyStudio.Invoicing
                 delete.AddLocationHeader(Company.CompanyID, LocationModel.LocationID);
                 await delete.Execute();
 
-                frmReceivableInvoice receivableInvoice = Studio.dockPanel.Contents.OfType<frmReceivableInvoice>().FirstOrDefault(content => content.Invoice?.InvoiceID == invoice.InvoiceID);
+                frmReceivableInvoice receivableInvoice = Studio.dockPanel.Contents.OfType<frmReceivableInvoice>().FirstOrDefault(content => content.InvoiceID == invoice.InvoiceID);
                 if (receivableInvoice != null)
                 {
                     receivableInvoice.Close();

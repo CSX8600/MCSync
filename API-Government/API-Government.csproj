@@ -94,6 +94,7 @@
     <Compile Include="Attributes\GovernmentAccessAttribute.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AliasController.cs" />
+    <Compile Include="Controllers\AutomaticInvoicePaymentConfigurationController.cs" />
     <Compile Include="Controllers\CategoryController.cs" />
     <Compile Include="Controllers\CompanyController.cs" />
     <Compile Include="Controllers\DebitCardController.cs" />
@@ -103,6 +104,9 @@
     <Compile Include="Controllers\EmailImplementationController.cs" />
     <Compile Include="Controllers\EmailTemplateController.cs" />
     <Compile Include="Controllers\FiscalQuarterController.cs" />
+    <Compile Include="Controllers\FulfillmentPlanController.cs" />
+    <Compile Include="Controllers\FulfillmentPlanPurchaseOrderLineController.cs" />
+    <Compile Include="Controllers\FulfillmentPlanRouteController.cs" />
     <Compile Include="Controllers\GovernmentController.cs" />
     <Compile Include="Controllers\InterestConfigurationController.cs" />
     <Compile Include="Controllers\InvoiceController.cs" />
@@ -110,7 +114,11 @@
     <Compile Include="Controllers\ItemController.cs" />
     <Compile Include="Controllers\LawController.cs" />
     <Compile Include="Controllers\LawSectionController.cs" />
+    <Compile Include="Controllers\LocationItemController.cs" />
     <Compile Include="Controllers\OfficialController.cs" />
+    <Compile Include="Controllers\PurchaseOrderController.cs" />
+    <Compile Include="Controllers\PurchaseOrderLineController.cs" />
+    <Compile Include="Controllers\RailcarController.cs" />
     <Compile Include="Controllers\SalesTaxController.cs" />
     <Compile Include="Controllers\SecurityController.cs" />
     <Compile Include="Controllers\TransactionController.cs" />

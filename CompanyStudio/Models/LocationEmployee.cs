@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CompanyStudio.Models
+﻿namespace CompanyStudio.Models
 {
     public class LocationEmployee
     {
@@ -16,5 +10,6 @@ namespace CompanyStudio.Models
         public bool ManagePrices { get; set; }
         public bool ManageRegisters { get; set; }
         public bool ManageInventory { get; set; }
+        public bool ManagePurchaseOrders { get; set; }
     }
 }

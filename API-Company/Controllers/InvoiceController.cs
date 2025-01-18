@@ -9,9 +9,11 @@ using API_Company.Attributes;
 using ClussPro.ObjectBasedFramework;
 using ClussPro.ObjectBasedFramework.DataSearch;
 using WebModels.company;
+using WebModels.fleet;
 using WebModels.gov;
 using WebModels.invoicing;
 using WebModels.mesasys;
+using WebModels.purchasing;
 
 namespace API_Company.Controllers
 {
@@ -35,6 +37,7 @@ namespace API_Company.Controllers
             $"{nameof(Invoice.GovernmentTo)}.{nameof(Government.Name)}",
             nameof(Invoice.GovernmentIDFrom),
             $"{nameof(Invoice.GovernmentFrom)}.{nameof(Government.Name)}",
+            nameof(Invoice.PurchaseOrderID),
             nameof(Invoice.InvoiceNumber),
             nameof(Invoice.InvoiceDate),
             nameof(Invoice.DueDate),
@@ -44,6 +47,7 @@ namespace API_Company.Controllers
             nameof(Invoice.AccountIDFrom),
             nameof(Invoice.AccountToHistorical),
             nameof(Invoice.Status),
+            nameof(Invoice.AutoReceive),
             $"{nameof(Invoice.InvoiceLines)}.{nameof(InvoiceLine.InvoiceLineID)}",
             $"{nameof(Invoice.InvoiceLines)}.{nameof(InvoiceLine.InvoiceID)}",
             $"{nameof(Invoice.InvoiceLines)}.{nameof(InvoiceLine.Quantity)}",
@@ -51,6 +55,18 @@ namespace API_Company.Controllers
             $"{nameof(Invoice.InvoiceLines)}.{nameof(InvoiceLine.Total)}",
             $"{nameof(Invoice.InvoiceLines)}.{nameof(InvoiceLine.Description)}",
             $"{nameof(Invoice.InvoiceLines)}.{nameof(InvoiceLine.ItemID)}",
+            $"{nameof(Invoice.InvoiceLines)}.{nameof(InvoiceLine.PurchaseOrderLineID)}",
+            $"{nameof(Invoice.InvoiceLines)}.{nameof(InvoiceLine.PurchaseOrderLine)}.{nameof(PurchaseOrderLine.IsService)}",
+            $"{nameof(Invoice.InvoiceLines)}.{nameof(InvoiceLine.PurchaseOrderLine)}.{nameof(PurchaseOrderLine.ServiceDescription)}",
+            $"{nameof(Invoice.InvoiceLines)}.{nameof(InvoiceLine.PurchaseOrderLine)}.{nameof(PurchaseOrderLine.Quantity)}",
+            $"{nameof(Invoice.InvoiceLines)}.{nameof(InvoiceLine.PurchaseOrderLine)}.{nameof(PurchaseOrderLine.ItemID)}",
+            $"{nameof(Invoice.InvoiceLines)}.{nameof(InvoiceLine.PurchaseOrderLine)}.{nameof(PurchaseOrderLine.Item)}.{nameof(Item.Name)}",
+            $"{nameof(Invoice.InvoiceLines)}.{nameof(InvoiceLine.PurchaseOrderLine)}.{nameof(PurchaseOrderLine.ItemDescription)}",
+            $"{nameof(Invoice.InvoiceLines)}.{nameof(InvoiceLine.Fulfillment)}.{nameof(Fulfillment.FulfillmentID)}",
+            $"{nameof(Invoice.InvoiceLines)}.{nameof(InvoiceLine.Fulfillment)}.{nameof(Fulfillment.FulfillmentTime)}",
+            $"{nameof(Invoice.InvoiceLines)}.{nameof(InvoiceLine.Fulfillment)}.{nameof(Fulfillment.Quantity)}",
+            $"{nameof(Invoice.InvoiceLines)}.{nameof(InvoiceLine.Fulfillment)}.{nameof(Fulfillment.Railcar)}.{nameof(Railcar.ReportingMark)}",
+            $"{nameof(Invoice.InvoiceLines)}.{nameof(InvoiceLine.Fulfillment)}.{nameof(Fulfillment.Railcar)}.{nameof(Railcar.ReportingNumber)}",
             $"{nameof(Invoice.InvoiceLines)}.{nameof(InvoiceLine.Item)}.{nameof(Item.ItemID)}",
             $"{nameof(Invoice.InvoiceLines)}.{nameof(InvoiceLine.Item)}.{nameof(Item.Name)}",
             $"{nameof(Invoice.InvoiceLines)}.{nameof(InvoiceLine.Item)}.{nameof(Item.IsFluid)}",
@@ -258,6 +274,22 @@ namespace API_Company.Controllers
             Location location = DataObject.GetEditableByPrimaryKey<Location>(LocationID, null, null);
             location.EmailImplementationIDReadyForReceipt = id == -1L ? null : id;
             return location.Save() ? Ok() : location.HandleFailedValidation(this);
+        }
+
+        [HttpGet]
+        [LocationAccess(OptionalPermissions = new[] { nameof(LocationEmployee.ManageInvoices), nameof(LocationEmployee.ManagePurchaseOrders)})]
+        public async Task<IHttpActionResult> GetForPurchaseOrder(long? id)
+        {
+            Search<Invoice> invoiceSearch = new Search<Invoice>(new SearchConditionGroup(SearchConditionGroup.SearchConditionGroupTypes.And,
+                GetBaseSearchCondition(),
+                new LongSearchCondition<Invoice>()
+                {
+                    Field = nameof(Invoice.PurchaseOrderID),
+                    SearchConditionType = SearchCondition.SearchConditionTypes.Equals,
+                    Value = id
+                }));
+
+            return Ok(await Task.Run(async () => invoiceSearch.GetReadOnlyReader(null, await FieldsToRetrieve()).ToList()));
         }
     }
 }

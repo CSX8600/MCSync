@@ -67,7 +67,7 @@ namespace CompanyStudio.Store.ClonePrices
                         get.QueryString.Add("locationID", location.LocationID.ToString());
                         get.AddCompanyHeader(company.CompanyID);
                         LocationEmployee locationEmployee = await get.GetObject<LocationEmployee>();
-                        if (locationEmployee == null || !locationEmployee.ManagePrices)
+                        if (locationEmployee == null || (!locationEmployee.ManagePrices && !locationEmployee.ManagePurchaseOrders))
                         {
                             continue;
                         }

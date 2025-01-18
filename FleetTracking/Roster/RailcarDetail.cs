@@ -35,6 +35,7 @@ namespace FleetTracking.Roster
         {
             InitializeComponent();
             dataGridViewStylizer.ApplyStyle(dgvHistory);
+            dataGridViewStylizer.ApplyStyle(dgvRoute);
         }
 
         private void RailcarDetail_Load(object sender, EventArgs e)
@@ -404,6 +405,10 @@ namespace FleetTracking.Roster
             {
                 LoadHistory();
             }
+            else if (tabControl.SelectedTab == tabRoute)
+            {
+                LoadRoute();
+            }
         }
 
         private int historySkip = 0;
@@ -588,6 +593,31 @@ namespace FleetTracking.Roster
         private void cmdReset_Click(object sender, EventArgs e)
         {
             LoadGeneralData();
+        }
+
+        private async Task LoadRoute()
+        {
+            try
+            {
+                loaderRoute.BringToFront();
+                loaderRoute.Visible = true;
+
+                dgvRoute.Rows.Clear();
+
+                GetData get = new GetData(DataAccess.APIs.FleetTracking, "RailcarRoute/GetForRailcar/" + RailcarID);
+                List<RailcarRoute> routes = await get.GetObject<List<RailcarRoute>>() ?? new List<RailcarRoute>();
+                foreach(RailcarRoute route in routes)
+                {
+                    DataGridViewRow row = dgvRoute.Rows[dgvRoute.Rows.Add()];
+                    row.Cells[colRouteSort.Name].Value = route.SortOrder?.ToString();
+                    row.Cells[colRouteFrom.Name].Value = route.From;
+                    row.Cells[colRouteTo.Name].Value = route.To;
+                }
+            }
+            finally
+            {
+                loaderRoute.Visible = false;
+            }
         }
     }
 }

@@ -30,6 +30,11 @@ namespace MesaSuite.Common.Data
             {
                 foreach (string queryStringValue in queryString.Value)
                 {
+                    if (queryStringValue == null)
+                    {
+                        continue;
+                    }
+
                     if (first)
                     {
                         uriBuilder.Append("?");
@@ -61,6 +66,25 @@ namespace MesaSuite.Common.Data
                     }
 
                     uriBuilder.Append("requestField=");
+                    uriBuilder.Append(Uri.EscapeDataString(field));
+                }
+            }
+
+            if (AdditionalFields != null)
+            {
+                foreach(string field in AdditionalFields)
+                {
+                    if (first)
+                    {
+                        uriBuilder.Append("?");
+                        first = false;
+                    }
+                    else
+                    {
+                        uriBuilder.Append("&");
+                    }
+
+                    uriBuilder.Append("additionalField=");
                     uriBuilder.Append(Uri.EscapeDataString(field));
                 }
             }

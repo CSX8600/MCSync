@@ -29,10 +29,14 @@ namespace CompanyStudio.Store.ClonePrices
 
         private void PermissionsManager_OnLocationPermissionChange(object sender, PermissionsManager.LocationWidePermissionChangeEventArgs e)
         {
-            if (e.LocationID == _locationID && e.Permission == PermissionsManager.LocationWidePermissions.ManagePrices && !e.Value)
+            if (e.LocationID == _locationID && !e.Value)
             {
-                ForceCloseWizard();
-                PermissionsManager.OnLocationPermissionChange -= PermissionsManager_OnLocationPermissionChange;
+                if (!PermissionsManager.HasPermission(_locationID.Value, PermissionsManager.LocationWidePermissions.ManagePrices) &&
+                    !PermissionsManager.HasPermission(_locationID.Value, PermissionsManager.LocationWidePermissions.ManagePurchaseOrders))
+                {
+                    ForceCloseWizard();
+                    PermissionsManager.OnLocationPermissionChange -= PermissionsManager_OnLocationPermissionChange;
+                }
             }
         }
 

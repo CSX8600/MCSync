@@ -301,10 +301,12 @@ namespace FleetTracking.Tracks
                 txtName.Clear();
                 txtLength.Clear();
                 toolPrint.Enabled = false;
+                tsmiPrintBOLs.Enabled = false;
                 return;
             }
 
             toolPrint.Enabled = true;
+            tsmiPrintBOLs.Enabled = true;
             cboOwner.SelectedItem = selectedTrack.Object.GovernmentIDOwner != null ?
                                     (object)cboOwner.Items.OfType<DropDownItem<Government>>().FirstOrDefault(ddi => ddi.Object.GovernmentID == selectedTrack.Object.GovernmentIDOwner) :
                                     cboOwner.Items.OfType<DropDownItem<Company>>().FirstOrDefault(ddi => ddi.Object.CompanyID == selectedTrack.Object.CompanyIDOwner);
@@ -419,6 +421,23 @@ namespace FleetTracking.Tracks
 
                 _application.OpenForm(detail);
             }
+        }
+
+        private async void tsmiPrintBOLs_Click(object sender, EventArgs e)
+        {
+            DropDownItem<Track> selectedItem = cboTrack.SelectedItem as DropDownItem<Track>;
+            if (selectedItem == null)
+            {
+                return;
+            }
+
+            BOLRailcarPicker railcarPicker = new BOLRailcarPicker()
+            {
+                TrackIDs = { selectedItem.Object.TrackID },
+                Application = _application
+            };
+
+            _application.OpenForm(railcarPicker, FleetTrackingApplication.OpenFormOptions.Dialog);
         }
     }
 }

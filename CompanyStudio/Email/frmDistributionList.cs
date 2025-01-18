@@ -172,7 +172,7 @@ namespace CompanyStudio.Email
             Save();
         }
 
-        public async void Save()
+        public async Task Save()
         {
             if (string.IsNullOrEmpty(txtAddress.Text))
             {

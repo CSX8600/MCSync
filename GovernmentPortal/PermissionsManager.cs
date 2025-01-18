@@ -141,7 +141,8 @@ namespace GovernmentPortal
             ManageInvoices,
             IssueWireTransfers,
             CanConfigureInterest,
-            ManageLaws
+            ManageLaws,
+            ManagePurchaseOrders
         }
 
         public class PermissionChangeEventArgs : EventArgs

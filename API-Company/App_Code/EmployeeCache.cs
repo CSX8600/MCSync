@@ -44,7 +44,7 @@ namespace API_Company.App_Code
             return _employeesByUserIDByCompanyID[companyID].GetOrDefault(userID);
         }
 
-        public async static Task<CachedEmployee> GetCachedEmpoyee(long companyID, string username)
+        public async static Task<CachedEmployee> GetCachedEmployee(long companyID, string username)
         {
             if (!_employeesByUsernameByCompanyID.ContainsKey(companyID))
             {

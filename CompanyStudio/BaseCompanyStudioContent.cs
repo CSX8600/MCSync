@@ -167,5 +167,14 @@ namespace CompanyStudio
             FormClosed -= BaseCompanyStudioContent_FormClosed;
             Studio.OnCompanyRemoved -= Studio_OnCompanyRemoved;
         }
+
+        protected void AppendCompanyLocationNameToWindowText()
+        {
+            Text += $" - {Company.Name}";
+            if (this is ILocationScoped locationScoped)
+            {
+                Text += $" ({locationScoped.LocationModel.Name})";
+            }
+        }
     }
 }

@@ -10,6 +10,7 @@ using System.Linq;
 using WebModels.account;
 using WebModels.hMailServer.dbo;
 using WebModels.mesasys;
+using WebModels.purchasing;
 
 namespace WebModels.company
 {
@@ -251,6 +252,20 @@ namespace WebModels.company
         {
             get { CheckGet(); return _railDistricts; }
         }
+
+        private List<fleet.RailcarRoute> _railcarRouteFroms = new List<fleet.RailcarRoute>();
+        [RelationshipList("072BD4B3-81C1-4A4E-8BB2-98CDEC88FD7B", nameof(fleet.RailcarRoute.CompanyIDFrom))]
+        public IReadOnlyCollection<fleet.RailcarRoute> RailcarRouteFroms
+        {
+            get { CheckGet(); return _railcarRouteFroms; }
+        }
+
+        private List<fleet.RailcarRoute> _railcarRouteTos = new List<fleet.RailcarRoute>();
+        [RelationshipList("51D74C31-8373-48BD-A85F-720C2FC847A4", nameof(fleet.RailcarRoute.CompanyIDTo))]
+        public IReadOnlyCollection<fleet.RailcarRoute> RailcarRouteTos
+        {
+            get { CheckGet(); return _railcarRouteTos; }
+        }
         #endregion
         #region gov
         private List<Location> _locations = new List<Location>();
@@ -258,6 +273,77 @@ namespace WebModels.company
         public IReadOnlyCollection<Location> Locations
         {
             get { CheckGet(); return _locations; }
+        }
+        #endregion
+        #region purchasing
+        private List<FulfillmentPlanRoute> _fulfillmentPlanRouteFroms = new List<FulfillmentPlanRoute>();
+        [RelationshipList("F440E77F-D9E7-4453-BAD4-83ACA83C8A3A", nameof(FulfillmentPlanRoute.CompanyIDFrom))]
+        public IReadOnlyCollection<FulfillmentPlanRoute> FulfillmentPlanRouteFroms
+        {
+            get { CheckGet(); return _fulfillmentPlanRouteFroms; }
+        }
+
+        private List<FulfillmentPlanRoute> _fulfillmentPlanRouteTos = new List<FulfillmentPlanRoute>();
+        [RelationshipList("5E276A59-1BDE-4423-A691-F26672E8998D", nameof(FulfillmentPlanRoute.CompanyIDTo))]
+        public IReadOnlyCollection<FulfillmentPlanRoute> FulfillmentPlanRouteTos
+        {
+            get { CheckGet(); return _fulfillmentPlanRouteTos; }
+        }
+
+        private List<PurchaseOrderApproval> _purchaseOrderApprovals = new List<PurchaseOrderApproval>();
+        [RelationshipList("94B116B9-46D3-45B2-87EB-6E30D75E9BE9", nameof(PurchaseOrderApproval.CompanyIDApprover), AutoDeleteReferences = true)]
+        public IReadOnlyCollection<PurchaseOrderApproval> PurchaseOrderApprovals
+        {
+            get { CheckGet(); return _purchaseOrderApprovals; }
+        }
+
+        private List<BillOfLading> _billsOfLadingShipper = new List<BillOfLading>();
+        [RelationshipList("711B2CCA-5EE5-4779-A0C3-C94A5B1033E3", nameof(BillOfLading.CompanyIDShipper))]
+        public IReadOnlyCollection<BillOfLading> BillsOfLadingShipper
+        {
+            get { CheckGet(); return _billsOfLadingShipper; }
+        }
+
+        private List<BillOfLading> _billsOfLadingConsignee = new List<BillOfLading>();
+        [RelationshipList("D24794A5-135A-4BE3-B64F-69DBEC7FBED8", nameof(BillOfLading.CompanyIDConsignee))]
+        public IReadOnlyCollection<BillOfLading> BillsOfLadingConsignee
+        {
+            get { CheckGet(); return _billsOfLadingConsignee; }
+        }
+
+        private List<BillOfLading> _billsOfLadingCarrier = new List<BillOfLading>();
+        [RelationshipList("B5F96C5F-BA50-485B-AAEF-8F2415DC3DD5", nameof(BillOfLading.CompanyIDCarrier))]
+        public IReadOnlyCollection<BillOfLading> BillsOfLadingCarrier
+        {
+            get { CheckGet(); return _billsOfLadingCarrier; }
+        }
+
+        private List<QuotationRequest> _quotationRequestFroms = new List<QuotationRequest>();
+        [RelationshipList("795CD655-4DB0-43F1-9E6C-3ADCA127E7A3", nameof(QuotationRequest.CompanyIDFrom))]
+        public IReadOnlyCollection<QuotationRequest> QuotationRequestFroms
+        {
+            get { CheckGet(); return _quotationRequestFroms; }
+        }
+
+        private List<QuotationRequest> _quotationRequestTos = new List<QuotationRequest>();
+        [RelationshipList("768B8575-1802-4EC1-8F37-E006FABFE4D7", nameof(QuotationRequest.CompanyIDTo))]
+        public IReadOnlyCollection<QuotationRequest> QuotationRequestTos
+        {
+            get { CheckGet(); return _quotationRequestTos; }
+        }
+
+        private List<Quotation> _quotationFroms = new List<Quotation>();
+        [RelationshipList("15988ACB-E277-4CFA-A56A-C1631F366C30", nameof(Quotation.CompanyIDFrom))]
+        public IReadOnlyCollection<Quotation> QuotationFroms
+        {
+            get { CheckGet(); return _quotationFroms; }
+        }
+
+        private List<Quotation> _quotationTos = new List<Quotation>();
+        [RelationshipList("DB2341F7-2266-4A54-85B6-92F4C56B9302", nameof(Quotation.CompanyIDTo))]
+        public IReadOnlyCollection<Quotation> QuotationTos
+        {
+            get { CheckGet(); return _quotationTos; }
         }
         #endregion
         #endregion

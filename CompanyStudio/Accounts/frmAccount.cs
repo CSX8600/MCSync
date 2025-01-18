@@ -23,7 +23,7 @@ namespace CompanyStudio.Accounts
             InitializeComponent();
         }
 
-        public async void Save()
+        public async Task Save()
         {
             loader.BringToFront();
             loader.Visible = true;
@@ -454,6 +454,11 @@ namespace CompanyStudio.Accounts
 
             LoadDebitCards();
             loader.Visible = false;
+        }
+
+        private void cmdCancel_Click(object sender, EventArgs e)
+        {
+            Close();
         }
     }
 }

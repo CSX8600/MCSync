@@ -4,6 +4,7 @@ using ClussPro.Base.Data.Query;
 using ClussPro.ObjectBasedFramework;
 using ClussPro.ObjectBasedFramework.Validation;
 using ClussPro.ObjectBasedFramework.Validation.Conditions;
+using WebModels.Common;
 
 namespace WebModels.fleet.Validations
 {

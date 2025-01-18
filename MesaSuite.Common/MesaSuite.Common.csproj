@@ -28,7 +28,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -68,6 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\EnumValueAttribute.cs" />
+    <Compile Include="Attributes\UriReachableAttribute.cs" />
     <Compile Include="Authentication.cs" />
     <Compile Include="Collections\MultiMap.cs" />
     <Compile Include="CrashHandler.cs" />
@@ -83,8 +84,10 @@
     <Compile Include="Data\ReleaseResourceWriter.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
+    <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Extensions\ControlExtensions.cs" />
+    <Compile Include="Extensions\HashSetExtensions.cs" />
     <Compile Include="Extensions\ListBoxDrawItemEventArgsExtensions.cs" />
     <Compile Include="Extensions\ObjectExtensions.cs" />
     <Compile Include="Extensions\SelectedListViewItemCollectionExtensions.cs" />
@@ -117,6 +120,23 @@
     </Compile>
     <Compile Include="Data\IResourceWriter.cs" />
     <Compile Include="GlobalSettings.cs" />
+    <Compile Include="ImageDisposer.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ImageDisposer.Designer.cs">
+      <DependentUpon>ImageDisposer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NetworkReporting\frmPrinterSelector.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NetworkReporting\frmPrinterSelector.Designer.cs">
+      <DependentUpon>frmPrinterSelector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NetworkReporting\NetworkReportBuilder.cs" />
+    <Compile Include="NetworkReporting\Printer.cs" />
+    <Compile Include="NetworkReporting\PrintJob.cs" />
+    <Compile Include="NetworkReporting\PrintLine.cs" />
+    <Compile Include="NetworkReporting\PrintPage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -124,8 +144,12 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="SecuredApplicationContext.cs" />
+    <Compile Include="ToolStripSpringTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="UserPreferences.cs" />
     <Compile Include="Utility\DropDownItem.cs" />
+    <Compile Include="Utility\RunByURIEngine.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="frmCrashReport.resx">
@@ -139,6 +163,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="GenericInputBox.resx">
       <DependentUpon>GenericInputBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NetworkReporting\frmPrinterSelector.resx">
+      <DependentUpon>frmPrinterSelector.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

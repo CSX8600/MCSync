@@ -41,6 +41,12 @@
 </span>
 
 <form method="post" autocomplete="off">
+    @if (ViewData.ModelState.Any(kvp => kvp.Key.Equals("loginToProgramName", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(kvp.Value.Value.AttemptedValue)))
+    {
+        <div class="alert alert-danger">
+            You need to login to open <strong>@ViewData.ModelState["loginToProgramName"].Value.AttemptedValue</strong>
+        </div>
+    }
     <div class="border border-info p-1">
         <div class="form-group">
             <label for="user">Username</label>

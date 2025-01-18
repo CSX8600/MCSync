@@ -403,6 +403,21 @@ namespace WebModels.account
         {
             get { CheckGet(); return _invoicesTo; }
         }
+
+        private List<AutomaticInvoicePaymentConfiguration> _automaticInvoicePaymentConfigurations = new List<AutomaticInvoicePaymentConfiguration>();
+        [RelationshipList("C315B833-0E56-4966-B544-0667CF4F3B95", nameof(AutomaticInvoicePaymentConfiguration.AccountID))]
+        public IReadOnlyCollection<AutomaticInvoicePaymentConfiguration> AutomaticInvoicePaymentConfigurations
+        {
+            get { CheckGet(); return _automaticInvoicePaymentConfigurations; }
+        }
+        #endregion
+        #region purchasing
+        private List<purchasing.PurchaseOrder> _purchaseOrderReceivers = new List<purchasing.PurchaseOrder>();
+        [RelationshipList("B524172F-29A5-4244-8D15-DE27EB23604A", nameof(purchasing.PurchaseOrder.AccountIDReceiving))]
+        public IReadOnlyCollection<purchasing.PurchaseOrder> PurchaseOrderReceivers
+        {
+            get { CheckGet(); return _purchaseOrderReceivers; }
+        }
         #endregion
         #endregion
     }

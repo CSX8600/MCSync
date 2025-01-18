@@ -32,6 +32,7 @@ namespace FleetTracking.Train
             dataGridViewStylizer.ApplyStyle(dgvDutyTrans);
             dataGridViewStylizer.ApplyStyle(dgvLocoFuel);
             dataGridViewStylizer.ApplyStyle(dgvHandledCars);
+            dgvConsist.MultiSelect = true;
             dgvHandledCars.MultiSelect = true;
         }
 
@@ -735,6 +736,113 @@ namespace FleetTracking.Train
                 };
                 _application.OpenForm(detail);
             }
+        }
+
+        private void dgvConsist_SelectionChanged(object sender, EventArgs e)
+        {
+            toolSpotAtStrategic.Enabled = dgvConsist.SelectedRows.OfType<DataGridViewRow>().Where(dgvr => dgvr.Tag is RailLocation railLocation && railLocation.RailcarID != null).Any();
+        }
+
+        private async void toolSpotAtStrategic_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                loaderConsist.BringToFront();
+                loaderConsist.Visible = true;
+
+                // Values to populate that will be sent to api
+                Dictionary<long?, List<RailLocation>> modifiedTracksByID = new Dictionary<long?, List<RailLocation>>();
+                Dictionary<long?, List<RailLocation>> modifiedTrainsByID = new Dictionary<long?, List<RailLocation>>();
+
+                // Identify which cars will be updated and which tracks they're going to
+                HashSet<long?> trackIDsToGet = new HashSet<long?>();
+                List<RailLocation> railLocationsToChange = new List<RailLocation>();
+                foreach(DataGridViewRow row in dgvConsist.SelectedRows.OfType<DataGridViewRow>().Where(dgvr => dgvr.Tag is RailLocation railLocation && railLocation.RailcarID != null))
+                {
+                    RailLocation railLocation = row.Tag as RailLocation;
+                    railLocationsToChange.Add(railLocation);
+                    trackIDsToGet.Add(railLocation.Railcar?.TrackIDStrategic);
+                }
+
+                foreach(long? trackID in trackIDsToGet)
+                {
+                    if (trackID == null)
+                    {
+                        continue;
+                    }
+
+                    GetData getByTrack = new GetData(DataAccess.APIs.FleetTracking, "RailLocation/GetByTrack/" + trackID);
+                    List<RailLocation> railLocationsOnTrack = await getByTrack.GetObject<List<RailLocation>>() ?? new List<RailLocation>();
+                    modifiedTracksByID.Add(trackID, railLocationsOnTrack);
+                }
+
+                GetData get = new GetData(DataAccess.APIs.FleetTracking, "RailLocation/GetByTrain/" + TrainID);
+                List<RailLocation> railLocations = await get.GetObject<List<RailLocation>>() ?? new List<RailLocation>();
+                modifiedTrainsByID.Add(TrainID, railLocations);
+
+                // Update rail locations and add/remove them to the appropriate places
+                foreach (RailLocation readOnlyRailLocation in railLocationsToChange)
+                {
+                    RailLocation railLocationToChange = modifiedTrainsByID[TrainID].Single(rl => rl.RailcarID == readOnlyRailLocation.RailcarID);
+
+                    railLocationToChange.TrackID = readOnlyRailLocation.Railcar?.TrackIDStrategic;
+                    railLocationToChange.TrainID = null;
+
+                    modifiedTracksByID[readOnlyRailLocation.Railcar?.TrackIDStrategic].Add(railLocationToChange);
+                    railLocationToChange.Position = modifiedTracksByID[readOnlyRailLocation.Railcar?.TrackIDStrategic].Count;
+                    modifiedTrainsByID[TrainID].Remove(railLocationToChange);
+                }
+
+                for(int i = 0; i < modifiedTrainsByID[TrainID].Count; i++)
+                {
+                    modifiedTrainsByID[TrainID][i].Position = i + 1;
+                }
+
+                // Update via api
+                PutData put = new PutData(DataAccess.APIs.FleetTracking, "RailLocation/Modify", new
+                {
+                    modifiedTracksByID,
+                    modifiedTrainsByID,
+                    TimeMoved = DateTime.Now
+                });
+                await put.ExecuteNoResult();
+
+                // Release the cars
+                if (put.RequestSuccessful)
+                {
+                    foreach(RailLocation readOnlyRailLocation in railLocationsToChange)
+                    {
+                        get = new GetData(DataAccess.APIs.FleetTracking, "Track/Get/" + readOnlyRailLocation.Railcar?.TrackIDStrategic);
+                        Track track = await get.GetObject<Track>();
+                        if (track != null)
+                        {
+                            PatchData patch = new PatchData(DataAccess.APIs.FleetTracking, "Railcar/Patch", PatchData.PatchMethods.Replace, readOnlyRailLocation.RailcarID, new Dictionary<string, object>()
+                            {
+                                { nameof(Railcar.CompanyIDPossessor), track.CompanyIDOwner },
+                                { nameof(Railcar.GovernmentIDPossessor), track.GovernmentIDOwner }
+                            });
+                            await patch.Execute();
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                loaderConsist.Visible = false;
+            }
+
+            LoadConsist();
+            LoadHandledCars();
+        }
+
+        private void tsbPrintBOLs_Click(object sender, EventArgs e)
+        {
+            Tracks.BOLRailcarPicker railcarPicker = new Tracks.BOLRailcarPicker()
+            {
+                TrainID = TrainID,
+                Application = _application
+            };
+            _application.OpenForm(railcarPicker, FleetTrackingApplication.OpenFormOptions.Dialog);
         }
     }
 }

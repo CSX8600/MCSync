@@ -72,7 +72,7 @@ namespace GovernmentPortal.Accounts
                 post.AddGovHeader(_governmentID);
 
                 Account savedAccount = await post.Execute<Account>();
-                if (post.RequestSuccessful && await SaveAccesses(savedAccount.AccountID))
+                if (post.RequestSuccessful && await SaveAccesses(savedAccount.AccountID.Value))
                 {
                     IsDirty = false;
                     _explorer.LoadAllItems(true, accountToSave.Description);
@@ -86,7 +86,7 @@ namespace GovernmentPortal.Accounts
                 put.AddGovHeader(_governmentID);
 
                 await put.ExecuteNoResult();
-                if (put.RequestSuccessful && await SaveAccesses(Model.AccountID))
+                if (put.RequestSuccessful && await SaveAccesses(Model.AccountID.Value))
                 {
                     IsDirty = false;
                     _explorer.LoadAllItems(true, accountToSave.Description);
@@ -355,7 +355,7 @@ namespace GovernmentPortal.Accounts
                 return;
             }
 
-            frmCloseAccount frmCloseAccount = new frmCloseAccount(Model.AccountID, _governmentID);
+            frmCloseAccount frmCloseAccount = new frmCloseAccount(Model.AccountID.Value, _governmentID);
             if (frmCloseAccount.ShowDialog() != DialogResult.OK)
             {
                 return;
@@ -374,7 +374,7 @@ namespace GovernmentPortal.Accounts
                 return;
             }
 
-            frmTransfer frmTransfer = new frmTransfer(Model.AccountID, _governmentID);
+            frmTransfer frmTransfer = new frmTransfer(Model.AccountID.Value, _governmentID);
             if (frmTransfer.ShowDialog() != DialogResult.OK)
             {
                 return;

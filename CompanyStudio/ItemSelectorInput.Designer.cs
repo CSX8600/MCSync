@@ -64,6 +64,7 @@
             this.Controls.Add(this.textBox1);
             this.Name = "ItemSelectorInput";
             this.Size = new System.Drawing.Size(444, 20);
+            this.Load += new System.EventHandler(this.ItemSelectorInput_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

@@ -31,9 +31,10 @@ namespace CompanyStudio.Store
 
         private void frmStoreItems_Load(object sender, EventArgs e)
         {
+            AppendCompanyLocationNameToWindowText();
             PermissionsManager.OnLocationPermissionChange += PermissionsManager_OnLocationPermissionChange;
 
-            colQty.ValueType = typeof(short);
+            colQty.ValueType = typeof(decimal);
             colCost.ValueType = typeof(decimal);
 
             LoadData();
@@ -41,10 +42,14 @@ namespace CompanyStudio.Store
 
         private void PermissionsManager_OnLocationPermissionChange(object sender, PermissionsManager.LocationWidePermissionChangeEventArgs e)
         {
-            if (e.LocationID == LocationModel.LocationID && e.Permission == PermissionsManager.LocationWidePermissions.ManagePrices && !e.Value)
+            if (e.LocationID == LocationModel.LocationID && !e.Value)
             {
-                this.ShowError("You do not have permission to manage prices in this location.");
-                Close();
+                if (!PermissionsManager.HasPermission(LocationModel.LocationID.Value, PermissionsManager.LocationWidePermissions.ManagePrices) &&
+                    !PermissionsManager.HasPermission(LocationModel.LocationID.Value, PermissionsManager.LocationWidePermissions.ManagePurchaseOrders))
+                {
+                    this.ShowError("You do not have permission to manage prices in this location.");
+                    Close();
+                }
             }
         }
 
@@ -102,7 +107,7 @@ namespace CompanyStudio.Store
         {
             StringBuilder errorBuilder = new StringBuilder();
             DataGridViewRow row = dgvItems.Rows[e.RowIndex];
-            if (row.Cells[colQty.Name].Value is short quantity && quantity < 0)
+            if (row.Cells[colQty.Name].Value is decimal quantity && quantity < 0)
             {
                 errorBuilder.AppendLine("Quantity must be greater than 0");
             }
@@ -121,7 +126,7 @@ namespace CompanyStudio.Store
                 }
 
                 LocationItem item = (LocationItem)otherRow.Tag;
-                if (item.ItemID == thisLocItem.ItemID && (short)row.Cells[colQty.Name].Value == (short)otherRow.Cells[colQty.Name].Value)
+                if (item.ItemID == thisLocItem.ItemID && (decimal)row.Cells[colQty.Name].Value == (decimal)otherRow.Cells[colQty.Name].Value)
                 {
                     errorBuilder.AppendLine("This combination of Item and Quantity already exists");
                     break;
@@ -165,7 +170,7 @@ namespace CompanyStudio.Store
 
                     row.Cells[colImage.Name].Value = item.GetImage();
                     row.Cells[colItem.Name].Value = item.Name;
-                    row.Cells[colQty.Name].Value = (short)0;
+                    row.Cells[colQty.Name].Value = (decimal)0;
                     row.Cells[colCost.Name].Value = 0D;
                     row.Tag = locationItem;
 
@@ -204,7 +209,7 @@ namespace CompanyStudio.Store
                 BasePrice = locationItem.BasePrice,
                 Quantity = locationItem.Quantity
             };
-            itemToSave.Quantity = short.Parse(row.Cells[colQty.Name].Value.ToString());
+            itemToSave.Quantity = decimal.Parse(row.Cells[colQty.Name].Value.ToString());
             itemToSave.BasePrice = decimal.Parse(row.Cells[colCost.Name].Value.ToString());
 
             PutData putData = new PutData(DataAccess.APIs.CompanyStudio, "LocationItem/Put", itemToSave);
@@ -270,8 +275,8 @@ namespace CompanyStudio.Store
                 int compareResult = row1.Cells[itemColName].Value.ToString().CompareTo(row2.Cells[itemColName].Value.ToString());
                 if (compareResult == 0)
                 {
-                    short quantity1 = short.Parse(row1.Cells[quantityColName].Value.ToString());
-                    short quantity2 = short.Parse(row2.Cells[quantityColName].Value.ToString());
+                    decimal quantity1 = decimal.Parse(row1.Cells[quantityColName].Value.ToString());
+                    decimal quantity2 = decimal.Parse(row2.Cells[quantityColName].Value.ToString());
 
                     compareResult = quantity1.CompareTo(quantity2);
                 }

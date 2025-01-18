@@ -52,6 +52,11 @@ namespace ClussPro.SqlServerProvider.ScriptWriters
                 return WriteIsNull(isNull, parameters);
             }
 
+            if (operand is Subtraction subtraction)
+            {
+                return WriteSubtraction(subtraction, parameters);
+            }
+
             throw new InvalidCastException("Could not determine IOperand type for writing");
         }
 
@@ -147,6 +152,28 @@ namespace ClussPro.SqlServerProvider.ScriptWriters
         private static string WriteIsNull(IsNull isNull, SqlParameterCollection parameters)
         {
             return $"ISNULL({WriteOperand(isNull.MainOperand, parameters)}, {WriteOperand(isNull.FallbackOperand, parameters)})";
+        }
+
+        private static string WriteSubtraction(Subtraction subtraction, SqlParameterCollection parameters)
+        {
+            if (subtraction.SubtractionOperands == null || subtraction.SubtractionOperands.Length < 2)
+            {
+                throw new InvalidOperationException("At least two operands are required for subtraction");
+            }
+
+            StringBuilder builder = new StringBuilder("(");
+            for(int i = 0; i < subtraction.SubtractionOperands.Length; i++)
+            {
+                if (i > 0)
+                {
+                    builder.Append(" - ");
+                }
+
+                builder.Append(WriteOperand(subtraction.SubtractionOperands[i], parameters));
+            }
+            builder.Append(")");
+
+            return builder.ToString();
         }
     }
 }

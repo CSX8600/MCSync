@@ -27,7 +27,8 @@ namespace API_Fleet.Controllers
             rl.Item.Name,
             rl.Item.IsFluid,
             rl.Item.Image,
-            rl.Quantity
+            rl.Quantity,
+            rl.PurchaseOrderLineID
         });
 
         public override ISearchCondition GetBaseSearchCondition()

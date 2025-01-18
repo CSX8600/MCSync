@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using GovernmentPortal.Extensions;
+using GovernmentPortal.Invoicing;
 using GovernmentPortal.Models;
 using GovernmentPortal.Officials;
 using MesaSuite.Common.Data;
@@ -33,7 +34,9 @@ namespace GovernmentPortal
                 { PermissionsManager.Permissions.ManageTaxes, tsmiTaxes },
                 { PermissionsManager.Permissions.ManageInvoices, mnuInvoices },
                 { PermissionsManager.Permissions.IssueWireTransfers, mnuWireTransfers },
-                { PermissionsManager.Permissions.ManageLaws, toolLaws }
+                { PermissionsManager.Permissions.ManageLaws, toolLaws },
+#warning Government Disabled
+                //{ PermissionsManager.Permissions.ManagePurchaseOrders, toolPurchasing }
             };
         }
 
@@ -50,6 +53,8 @@ namespace GovernmentPortal
             UpdateMenuVisibility();
             InitializeFleetTracking();
         }
+
+        public FleetTracking.Interop.FleetTrackingApplication FleetTrackingApplication => _fleetTrackingApplication;
 
         private void UpdateMenuVisibility()
         {
@@ -424,6 +429,30 @@ namespace GovernmentPortal
             lawEditor.MdiParent = this;
             lawEditor.GovernmentID = _government.GovernmentID;
             lawEditor.Show();
+        }
+
+        private void toolPriceManager_Click(object sender, EventArgs e)
+        {
+            Purchasing.frmPriceManager priceManager = new Purchasing.frmPriceManager();
+            priceManager.MdiParent = this;
+            priceManager.GovernmentID = _government.GovernmentID.Value;
+            priceManager.Show();
+        }
+
+        private void tsbPurchaseOrders_Click(object sender, EventArgs e)
+        {
+            Purchasing.frmPurchaseOrderShell purchaseOrderShell = new Purchasing.frmPurchaseOrderShell();
+            purchaseOrderShell.MdiParent = this;
+            purchaseOrderShell.GovernmentID = _government.GovernmentID.Value;
+            purchaseOrderShell.Show();
+        }
+
+        private void tsmiAutomaticPayments_Click(object sender, EventArgs e)
+        {
+            new frmGenericExplorer<AutomaticInvoicePaymentConfiguration>(new AutomaticPaymentsContext(_government.GovernmentID.Value))
+            {
+                MdiParent = this
+            }.Show();
         }
     }
 }

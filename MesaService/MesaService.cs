@@ -113,11 +113,12 @@ namespace MesaService
 #else
             try
             {
-                if (!EventLog.SourceExists("MesaService"))
+                string eventSource = Program.InternalEdition ? "MesaServiceInternalEdition" : "MesaService";
+                if (!EventLog.SourceExists(eventSource))
                 {
-                    EventLog.CreateEventSource("MesaService", "Application");
+                    EventLog.CreateEventSource(eventSource, "Application");
                 }
-                EventLog.WriteEntry("MesaService", entry, EventLogEntryType.Information);
+                EventLog.WriteEntry(eventSource, entry, EventLogEntryType.Information);
             }
             catch
             {

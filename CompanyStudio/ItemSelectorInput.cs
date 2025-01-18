@@ -1,8 +1,11 @@
-﻿using System;
+﻿using CompanyStudio.Models;
+using MesaSuite.Common.Data;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,13 +19,48 @@ namespace CompanyStudio
 
         public event EventHandler ItemSelected;
         public string SelectedText { get; private set; }
-        public long? SelectedID { get; set; }
+        private bool _itemSelectorSelected = false;
+        private long? _selectedID;
+        public long? SelectedID
+        {
+            get => _selectedID;
+            set
+            {
+                _selectedID = value;
+                if (!_itemSelectorSelected)
+                {
+                    LoadInitialData();
+                }
+            }
+        }
 
         private Size OriginalSize;
         public ItemSelectorInput()
         {
             InitializeComponent();
             OriginalSize = Size;
+        }
+
+        private void ItemSelectorInput_Load(object sender, EventArgs e)
+        {
+            if (!DesignMode)
+            {
+                LoadInitialData();
+            }
+        }
+
+        private async void LoadInitialData()
+        {
+            if (SelectedID != null)
+            {
+                GetData get = new GetData(DataAccess.APIs.CompanyStudio, $"Item/Get/{SelectedID}");
+                Item item = await get.GetObject<Item>();
+                if (item != null)
+                {
+                    SelectedText = item.Name;
+                    textBox1.Text = item.Name;
+                }
+            }
         }
 
         private void cmdDropDown_Click(object sender, EventArgs e)
@@ -49,11 +87,13 @@ namespace CompanyStudio
             selector.Leave += (s, ea) => { Controls.Remove(selector); SetControlBounds(false); };
             selector.ItemSelected += (s, ea) =>
             {
+                _itemSelectorSelected = true;
                 SelectedText = selector.SelectedItemText;
                 textBox1.Text = SelectedText;
                 SelectedID = selector.SelectedItemID;
                 textBox1.SelectAll();
                 textBox1.Focus();
+                _itemSelectorSelected = false;
                 ItemSelected?.Invoke(this, EventArgs.Empty);
             };
             SetControlBounds(true);

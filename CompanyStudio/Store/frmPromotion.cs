@@ -28,7 +28,7 @@ namespace CompanyStudio.Store
 
         public event EventHandler OnSave;
 
-        public async void Save()
+        public async Task Save()
         {
             if (!this.AreFieldsPresent(new List<(string, Control)>()
             {

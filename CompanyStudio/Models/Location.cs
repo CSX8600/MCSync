@@ -17,5 +17,7 @@ namespace CompanyStudio.Models
 
         public List<LocationEmployee> LocationEmployees { get; set; }
         public List<LocationGovernment> LocationGovernments { get; set; }
+
+        public string DisplayName => $"{Company?.Name} ({Name})";
     }
 }

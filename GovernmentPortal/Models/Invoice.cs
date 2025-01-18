@@ -33,6 +33,7 @@ namespace GovernmentPortal.Models
         public string AccountFromHistorical { get; set; }
         public long? AccountIDTo { get; set; }
         public string AccountToHistorical { get; set; }
+        public bool AutoReceive { get; set; }
 
         public List<InvoiceLine> InvoiceLines { get; set; }
     }

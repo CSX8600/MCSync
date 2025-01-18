@@ -9,15 +9,25 @@ namespace ClussPro.ObjectBasedFramework.Utility
 {
     public static class FieldPathUtility
     {
-        public static List<string> CreateFieldPathsAsList<TDataObject>(Expression<Func<TDataObject, List<object>>> expression)
+        public static List<string> CreateFieldPathsAsList<TDataObject>(Expression<Func<TDataObject, object>> expression)
         {
-            if (!(expression.Body is ListInitExpression listInitExpression))
+            IEnumerable<Expression> expressions;
+
+            if (expression.Body is ListInitExpression listInitExpression)
+            {
+                expressions = listInitExpression.Initializers.OfType<ElementInit>().SelectMany(ei => ei.Arguments);
+            }
+            else if (expression.Body is NewArrayExpression newArrayExpression)
+            {
+                expressions = newArrayExpression.Expressions;
+            }
+            else
             {
                 return null;
             }
 
             List<string> fieldPaths = new List<string>();
-            foreach (Expression elementInitArgument in listInitExpression.Initializers.OfType<ElementInit>().SelectMany(ei => ei.Arguments))
+            foreach (Expression elementInitArgument in expressions)
             {
                 StringBuilder fieldBuilder = new StringBuilder();
                 DrillToRoot(elementInitArgument, fieldBuilder);
@@ -27,7 +37,19 @@ namespace ClussPro.ObjectBasedFramework.Utility
             return fieldPaths;
         }
 
-        public static string CreateFieldPaths<TDataObject>(Expression<Func<TDataObject, List<object>>> expression)
+        public static string CreateFieldPath<TDataObject>(Expression<Func<TDataObject, object>> expression)
+        {
+            StringBuilder fieldBuilder = new StringBuilder();
+            DrillToRoot(expression.Body, fieldBuilder);
+            if (fieldBuilder.Length <= 0)
+            {
+                return string.Empty;
+            }
+
+            return fieldBuilder.ToString(0, fieldBuilder.Length - 1);
+        }
+
+        public static string CreateFieldPaths<TDataObject>(Expression<Func<TDataObject, object>> expression)
         {
             List<string> fieldPaths = CreateFieldPathsAsList<TDataObject>(expression);
             StringBuilder fieldPathBuilder = new StringBuilder(";");

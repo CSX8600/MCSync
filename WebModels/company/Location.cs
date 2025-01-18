@@ -9,6 +9,7 @@ using WebModels.account;
 using WebModels.fleet;
 using WebModels.invoicing;
 using WebModels.mesasys;
+using WebModels.purchasing;
 
 namespace WebModels.company
 {
@@ -260,6 +261,49 @@ namespace WebModels.company
         public IReadOnlyCollection<Invoice> InvoicesTo
         {
             get { CheckGet(); return _invoicesTo; }
+        }
+
+        private List<AutomaticInvoicePaymentConfiguration> _automaticInvoicePaymentConfigurationConfiguredFors = new List<AutomaticInvoicePaymentConfiguration>();
+        [RelationshipList("1DF050A5-8DF0-47FF-8902-46949F4B3156", nameof(AutomaticInvoicePaymentConfiguration.LocationIDConfiguredFor))]
+        public IReadOnlyCollection<AutomaticInvoicePaymentConfiguration> AutomaticInvoicePaymentConfigurationConfiguredFors
+        {
+            get { CheckGet(); return _automaticInvoicePaymentConfigurationConfiguredFors; }
+        }
+
+        private List<AutomaticInvoicePaymentConfiguration> _automaticInvoicePaymentConfigurationPayees = new List<AutomaticInvoicePaymentConfiguration>();
+        [RelationshipList("2B0E747E-6808-48A4-BEE6-6378A13223DC", nameof(AutomaticInvoicePaymentConfiguration.LocationIDPayee))]
+        public IReadOnlyCollection<AutomaticInvoicePaymentConfiguration> AutomaticInvoicePaymentConfigurationPayees
+        {
+            get { CheckGet(); return _automaticInvoicePaymentConfigurationPayees; }
+        }
+        #endregion
+        #region purchasing
+        private List<PurchaseOrder> _purchaseOrderOrigins = new List<PurchaseOrder>();
+        [RelationshipList("B6F7A8F8-8E8C-4B9F-8C8F-4A9C8C8C8C8C", nameof(PurchaseOrder.LocationIDOrigin))]
+        public IReadOnlyCollection<PurchaseOrder> PurchaseOrderOrigins
+        {
+            get { CheckGet(); return _purchaseOrderOrigins; }
+        }
+
+        private List<PurchaseOrder> _purchaseOrderDestinations = new List<PurchaseOrder>();
+        [RelationshipList("CE9D354F-D707-4511-9700-F47A1C8793E3", nameof(PurchaseOrder.LocationIDDestination))]
+        public IReadOnlyCollection<PurchaseOrder> PurchaseOrderDestinations
+        {
+            get { CheckGet(); return _purchaseOrderDestinations; }
+        }
+
+        private List<PurchaseOrderTemplateFolder> _purchaseOrderTemplateFolders = new List<PurchaseOrderTemplateFolder>();
+        [RelationshipList("D08A833C-92B7-4C38-9128-F7004A655D43", nameof(PurchaseOrderTemplateFolder.LocationID))]
+        public IReadOnlyCollection<PurchaseOrderTemplateFolder> PurchaseOrderTemplateFolders
+        {
+            get { CheckGet(); return _purchaseOrderTemplateFolders; }
+        }
+
+        private List<PurchaseOrderTemplate> _purchaseOrderTemplates = new List<PurchaseOrderTemplate>();
+        [RelationshipList("2F0268B7-5364-45CF-B0F6-691A7241B841", nameof(PurchaseOrderTemplate.LocationID))]
+        public IReadOnlyCollection<PurchaseOrderTemplate> PurchaseOrderTemplates
+        {
+            get { CheckGet(); return _purchaseOrderTemplates; }
         }
         #endregion
         #endregion

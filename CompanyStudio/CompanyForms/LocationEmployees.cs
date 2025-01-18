@@ -67,6 +67,7 @@ namespace CompanyStudio.CompanyForms
                     row.Cells[colManagePrices.Name].Value = locationEmployee.ManagePrices;
                     row.Cells[colManageRegisters.Name].Value = locationEmployee.ManageRegisters;
                     row.Cells[colManageInventory.Name].Value = locationEmployee.ManageInventory;
+                    row.Cells[colManagePurchaseOrders.Name].Value = locationEmployee.ManagePurchaseOrders;
                 }
             }
 
@@ -112,7 +113,8 @@ namespace CompanyStudio.CompanyForms
                     ManageInvoices = (bool)(existingRow.Cells["colManageInvoices"].Value ?? false),
                     ManagePrices = (bool)(existingRow.Cells[colManagePrices.Name].Value ?? false),
                     ManageRegisters = (bool)(existingRow.Cells[colManageRegisters.Name].Value ?? false),
-                    ManageInventory = (bool)(existingRow.Cells[colManageInventory.Name].Value ?? false)
+                    ManageInventory = (bool)(existingRow.Cells[colManageInventory.Name].Value ?? false),
+                    ManagePurchaseOrders = (bool)(existingRow.Cells[colManagePurchaseOrders.Name].Value ?? false)
                 };
                 locationEmployeesToSave.Add(savingLocationEmployee);
             }
@@ -132,7 +134,8 @@ namespace CompanyStudio.CompanyForms
                     ManageInvoices = (bool)(newRow.Cells["colManageInvoices"].Value ?? false),
                     ManagePrices = (bool)(newRow.Cells[colManagePrices.Name].Value ?? false),
                     ManageRegisters = (bool)(newRow.Cells[colManageRegisters.Name].Value ?? false),
-                    ManageInventory = (bool)(newRow.Cells[colManageInventory.Name].Value ?? false)
+                    ManageInventory = (bool)(newRow.Cells[colManageInventory.Name].Value ?? false),
+                    ManagePurchaseOrders = (bool)(newRow.Cells[colManagePurchaseOrders.Name].Value ?? false)
                 };
 
                 locationEmployeesToCreate.Add(newLocationEmployee);

@@ -208,7 +208,7 @@ namespace WebModels.Loaders.mesasys
 
         private class EmailTemplateLoaderObject<TTemplateObject> : LoaderObject where TTemplateObject : DataObject
         {
-            public EmailTemplateLoaderObject(Guid systemID, string name, string template, EmailTemplate.SecurityCheckTypes securityCheckType, Expression<Func<TTemplateObject, List<object>>> allowedFields) : base(typeof(EmailTemplate))
+            public EmailTemplateLoaderObject(Guid systemID, string name, string template, EmailTemplate.SecurityCheckTypes securityCheckType, Expression<Func<TTemplateObject, object>> allowedFields) : base(typeof(EmailTemplate))
             {
                 SystemID = systemID;
                 Values = new Dictionary<string, object>()

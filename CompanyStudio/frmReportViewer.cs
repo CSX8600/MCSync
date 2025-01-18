@@ -1,4 +1,5 @@
-﻿using Microsoft.Reporting.WinForms;
+﻿using MesaSuite.Common.NetworkReporting;
+using Microsoft.Reporting.WinForms;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -17,6 +18,7 @@ namespace CompanyStudio
         private Dictionary<string, string> parameters = new Dictionary<string, string>();
 
         public string ReportName { get; set; }
+        public NetworkReportBuilder NetworkReportBuilder { get; set; }
 
         public frmReportViewer()
         {
@@ -25,6 +27,8 @@ namespace CompanyStudio
 
         private void frmReportViewer_Load(object sender, EventArgs e)
         {
+            cmdNetworkPrint.Visible = NetworkReportBuilder != null;
+
             reportViewer.LocalReport.ReportEmbeddedResource = ReportName;
             KeyValuePair<string, object> dataSetKVP = dataSets.FirstOrDefault(kvp => !kvp.Key.Contains('.'));
             if (!dataSetKVP.Equals(default(KeyValuePair<string, object>)))
@@ -37,6 +41,7 @@ namespace CompanyStudio
             }
             reportViewer.LocalReport.SubreportProcessing += LocalReport_SubreportProcessing;
             this.reportViewer.RefreshReport();
+            reportViewer.SetDisplayMode(DisplayMode.PrintLayout);
         }
 
         private void LocalReport_SubreportProcessing(object sender, SubreportProcessingEventArgs e)
@@ -59,6 +64,22 @@ namespace CompanyStudio
         public void AddParameter(string key, string value)
         {
             parameters.Add(key, value);
+        }
+
+        private async void cmdNetworkPrint_Click(object sender, EventArgs e)
+        {
+            frmPrinterSelector printerSelector = new frmPrinterSelector()
+            {
+                PrinterID = NetworkReportBuilder.InitialPrinterID,
+                DocumentName = NetworkReportBuilder.InitialDocumentName
+            };
+
+            if (printerSelector.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+
+            await NetworkReportBuilder.SaveNetworkReport(printerSelector.PrinterID, printerSelector.DocumentName);
         }
     }
 }

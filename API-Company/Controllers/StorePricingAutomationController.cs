@@ -14,7 +14,7 @@ namespace API_Company.Controllers
 {
     [MesabrookAuthorization]
     [ProgramAccess("company")]
-    [LocationAccess(RequiredPermissions = new[] { nameof(LocationEmployee.ManagePrices)})]
+    [LocationAccess(OptionalPermissions = new[] { nameof(LocationEmployee.ManagePrices), nameof(LocationEmployee.ManagePurchaseOrders) })]
     public class StorePricingAutomationController : DataObjectController<StorePricingAutomation>
     {
         protected long? LocationID => long.Parse(Request.Headers.GetValues("LocationID").First());

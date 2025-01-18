@@ -3,6 +3,8 @@ using CompanyStudio.Models;
 using FleetTracking;
 using FleetTracking.Interop;
 using MesaSuite.Common;
+using MesaSuite.Common.Attributes;
+using MesaSuite.Common.Collections;
 using MesaSuite.Common.Data;
 using MesaSuite.Common.Extensions;
 using MesaSuite.Common.Utility;
@@ -19,6 +21,7 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace CompanyStudio
 {
+    [UriReachable("")]
     public partial class frmStudio : Form
     {
         Dictionary<string, ThemeBase> themes = new Dictionary<string, ThemeBase>();
@@ -32,9 +35,10 @@ namespace CompanyStudio
             themes.Add("blue", vS2015BlueTheme);
         }
 
+
         public event EventHandler<Company> OnCompanyAdded;
         public event EventHandler<Company> OnCompanyRemoved;
-        
+
         Dictionary<Type, BaseCompanyStudioContent> formsByType = new Dictionary<Type, BaseCompanyStudioContent>();
         private Company _activeCompany;
         public Company ActiveCompany
@@ -55,6 +59,7 @@ namespace CompanyStudio
                 toolCompanyDropDown.Text = _activeCompany?.Name ?? "";
 
                 financeToolStripMenuItem.Visible = PermissionsManager.HasPermission(_activeCompany?.CompanyID ?? -1, PermissionsManager.CompanyWidePermissions.ManageAccounts) ||
+                                                   PermissionsManager.HasPermission(_activeLocation?.LocationID ?? -1, PermissionsManager.LocationWidePermissions.ManagePurchaseOrders) ||
                                                    PermissionsManager.HasPermission(_activeLocation?.LocationID ?? -1, PermissionsManager.LocationWidePermissions.ManageInvoices) ||
                                                    PermissionsManager.HasPermission(_activeCompany?.CompanyID ?? -1, PermissionsManager.CompanyWidePermissions.IssueWireTransfers);
 
@@ -93,6 +98,7 @@ namespace CompanyStudio
                 toolLocationDropDown.SelectedItem = toolLocationDropDown.Items.Cast<DropDownItem<Location>>().FirstOrDefault(ddi => ddi.Object == _activeLocation);
 
                 financeToolStripMenuItem.Visible = PermissionsManager.HasPermission(_activeCompany?.CompanyID ?? -1, PermissionsManager.CompanyWidePermissions.ManageAccounts) ||
+                                                   PermissionsManager.HasPermission(_activeLocation?.LocationID ?? -1, PermissionsManager.LocationWidePermissions.ManagePurchaseOrders) ||
                                                    PermissionsManager.HasPermission(_activeLocation?.LocationID ?? -1, PermissionsManager.LocationWidePermissions.ManageInvoices) ||
                                                    PermissionsManager.HasPermission(_activeCompany?.CompanyID ?? -1, PermissionsManager.CompanyWidePermissions.IssueWireTransfers);
 
@@ -129,6 +135,7 @@ namespace CompanyStudio
         private void FleetTracking_AddNavigationItem(ToolStripItemCollection collection, FleetTrackingApplication.MainNavigationItem item)
         {
             ToolStripMenuItem tsmi = new ToolStripMenuItem(item.Text);
+            tsmi.Name = "mnu" + item.Text.Replace(" ", "");
             if (item.SelectedAction != null)
             {
                 tsmi.Click += (s, e) => item.SelectedAction.Invoke();
@@ -136,7 +143,7 @@ namespace CompanyStudio
 
             if (item.SubItems != null)
             {
-                foreach(FleetTrackingApplication.MainNavigationItem subItem in item.SubItems)
+                foreach (FleetTrackingApplication.MainNavigationItem subItem in item.SubItems)
                 {
                     FleetTracking_AddNavigationItem(tsmi.DropDownItems, subItem);
                 }
@@ -235,8 +242,12 @@ namespace CompanyStudio
             return PermissionsManager.HasPermissionFleetTrack(ActiveCompany?.CompanyID ?? 0L, permission);
         }
 
-        private void frmStudio_Load(object sender, EventArgs e)
+        public bool IsLoading = true;
+        private async void frmStudio_Load(object sender, EventArgs e)
         {
+            loader.BringToFront();
+            loader.Visible = true;
+            loader.Text = "Initializing Company Studio";
             string subKey = GlobalSettings.InternalEditionMode ? "MesaSuiteInternalEdition" : "MesaSuite";
             RegistryKey key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Clussman Productions\" + subKey);
             string theme = key.GetValue("CStudioTheme") as string;
@@ -251,10 +262,14 @@ namespace CompanyStudio
             SetThemeMenuChecked();
             ApplyTheme();
 
+            GetData getCompanies = new GetData(DataAccess.APIs.CompanyStudio, "Company/GetForEmployee");
+            List<Company> companies = await getCompanies.GetObject<List<Company>>();
+            if (getCompanies.RequestSuccessful)
+            {
+                companies.OrderBy(c => c.Name).ForEach(c => AddCompany(c));
 
-            frmCompanyConnect connect = GetForm<frmCompanyConnect>();
-            connect.Shown += Connect_Shown_FirstTime;
-            connect.Show();
+                ActiveCompany = Companies.FirstOrDefault();
+            }
 
             frmCompanyExplorer companyExplorer = GetForm<frmCompanyExplorer>();
             companyExplorer.Show(dockPanel, DockState.DockLeft);
@@ -262,13 +277,25 @@ namespace CompanyStudio
             PermissionsManager.OnCompanyPermissionChange += PermissionsManager_OnCompanyPermissionChange;
             PermissionsManager.OnLocationPermissionChange += PermissionsManager_OnLocationPermissionChange;
             PermissionsManager.StartCheckThread((method) => Invoke(method));
+            loader.Visible = false;
+
+            bool showStart = UserPreferences.Get().GetPreferencesForSection("company").GetOrDefault("showStartPage", true) as bool? ?? true;
+
+            if (showStart)
+            {
+                frmStartPage start = new frmStartPage();
+                start.Studio = this;
+                start.Show(dockPanel, DockState.Document);
+            }
+
+            IsLoading = false;
         }
 
         private void PermissionsManager_OnCompanyPermissionChange(object sender, PermissionsManager.CompanyWidePermissionChangeEventArgs e)
         {
             if (e.CompanyID == (ActiveCompany?.CompanyID ?? -1))
             {
-                switch(e.Permission)
+                switch (e.Permission)
                 {
                     case PermissionsManager.CompanyWidePermissions.ManageEmails:
                         emailToolStripMenuItem.Visible = e.Value;
@@ -285,6 +312,7 @@ namespace CompanyStudio
                 }
 
                 financeToolStripMenuItem.Visible = PermissionsManager.HasPermission(_activeCompany?.CompanyID ?? -1, PermissionsManager.CompanyWidePermissions.ManageAccounts) ||
+                                                   PermissionsManager.HasPermission(_activeLocation?.LocationID ?? -1, PermissionsManager.LocationWidePermissions.ManagePurchaseOrders) ||
                                                    PermissionsManager.HasPermission(_activeLocation?.LocationID ?? -1, PermissionsManager.LocationWidePermissions.ManageInvoices) ||
                                                    PermissionsManager.HasPermission(_activeCompany?.CompanyID ?? -1, PermissionsManager.CompanyWidePermissions.IssueWireTransfers);
             }
@@ -294,24 +322,21 @@ namespace CompanyStudio
         {
             if (e.LocationID == (ActiveLocation?.LocationID ?? 0))
             {
-                switch(e.Permission)
+                switch (e.Permission)
                 {
                     case PermissionsManager.LocationWidePermissions.ManageInvoices:
                         invoicingToolStripMenuItem.Visible = e.Value;
                         break;
+                    case PermissionsManager.LocationWidePermissions.ManagePurchaseOrders:
+                        purchasingFulfillmentToolStripMenuItem.Visible = e.Value;
+                        break;
                 }
 
                 financeToolStripMenuItem.Visible = PermissionsManager.HasPermission(_activeCompany?.CompanyID ?? -1, PermissionsManager.CompanyWidePermissions.ManageAccounts) ||
+                                                   PermissionsManager.HasPermission(_activeLocation?.LocationID ?? -1, PermissionsManager.LocationWidePermissions.ManagePurchaseOrders) ||
                                                    PermissionsManager.HasPermission(_activeLocation?.LocationID ?? -1, PermissionsManager.LocationWidePermissions.ManageInvoices) ||
                                                    PermissionsManager.HasPermission(_activeCompany?.CompanyID ?? -1, PermissionsManager.CompanyWidePermissions.IssueWireTransfers);
             }
-        }
-
-        private void Connect_Shown_FirstTime(object sender, EventArgs e)
-        {
-            frmCompanyConnect connect = GetForm<frmCompanyConnect>(false);
-            connect.Shown -= Connect_Shown_FirstTime;
-            connect.BringToFront();
         }
 
         private void SetThemeMenuChecked()
@@ -347,7 +372,7 @@ namespace CompanyStudio
             {
                 dockPanel.SaveAsXml(memoryStream, Encoding.UTF8);
                 memoryStream.Position = 0;
-                foreach(IDockContent content in dockPanel.Contents.ToList())
+                foreach (IDockContent content in dockPanel.Contents.ToList())
                 {
                     content.DockHandler.Close();
                 }
@@ -362,12 +387,6 @@ namespace CompanyStudio
             foreach (BaseCompanyStudioContent item in dockPanel.Contents.OfType<BaseCompanyStudioContent>())
             {
                 item.Theme = currentTheme;
-            }
-
-            frmCompanyConnect connect = GetForm<frmCompanyConnect>(false);
-            if (connect != null)
-            {
-                connect.Theme = currentTheme;
             }
 
             studioFormExtender.ApplyStyle(loader, currentTheme);
@@ -405,7 +424,7 @@ namespace CompanyStudio
             ApplyTheme();
         }
 
-        public T GetForm<T>(bool createNew = true) where T:BaseCompanyStudioContent
+        public T GetForm<T>(bool createNew = true) where T : BaseCompanyStudioContent
         {
             return GetForm(typeof(T), createNew) as T;
         }
@@ -450,7 +469,7 @@ namespace CompanyStudio
 
         private void Content_OnIsDirtyChange(object sender, EventArgs e)
         {
-            
+
         }
 
         public void AddCompany(Company company)
@@ -515,7 +534,7 @@ namespace CompanyStudio
 
         private void mnuEmailExplorer_Click(object sender, EventArgs e)
         {
-            foreach(Email.frmEmailExplorer openEmailExplorers in dockPanel.Contents.OfType<Email.frmEmailExplorer>())
+            foreach (Email.frmEmailExplorer openEmailExplorers in dockPanel.Contents.OfType<Email.frmEmailExplorer>())
             {
                 if (openEmailExplorers.Company == ActiveCompany)
                 {
@@ -543,7 +562,7 @@ namespace CompanyStudio
 
         private void toolSaveAll_Click(object sender, EventArgs e)
         {
-            foreach(ISaveable saveable in dockPanel.Documents.OfType<ISaveable>())
+            foreach (ISaveable saveable in dockPanel.Documents.OfType<ISaveable>())
             {
                 try
                 {
@@ -555,7 +574,7 @@ namespace CompanyStudio
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            switch(keyData)
+            switch (keyData)
             {
                 case Keys.S | Keys.Control | Keys.Shift:
                     toolSaveAll.PerformClick();
@@ -590,7 +609,7 @@ namespace CompanyStudio
             PermissionsManager.OnLocationPermissionChange -= PermissionsManager_OnLocationPermissionChange;
             PermissionsManager.StopCheckThread();
 
-            foreach(FleetTrackingApplication fleetTrackingApplication in fleetTrackingApplicationsByCompany.Values)
+            foreach (FleetTrackingApplication fleetTrackingApplication in fleetTrackingApplicationsByCompany.Values)
             {
                 fleetTrackingApplication.Shutdown();
             }
@@ -737,6 +756,7 @@ namespace CompanyStudio
         private void financeToolStripMenuItem_DropDownOpening(object sender, EventArgs e)
         {
             accountsToolStripMenuItem.Visible = PermissionsManager.HasPermission(_activeCompany?.CompanyID ?? -1, PermissionsManager.CompanyWidePermissions.ManageAccounts);
+            purchasingFulfillmentToolStripMenuItem.Visible = PermissionsManager.HasPermission(_activeLocation?.LocationID ?? -1, PermissionsManager.LocationWidePermissions.ManagePurchaseOrders);
             invoicingToolStripMenuItem.Visible = PermissionsManager.HasPermission(_activeLocation?.LocationID ?? -1, PermissionsManager.LocationWidePermissions.ManageInvoices);
             mnuWireTransfers.Visible = PermissionsManager.HasPermission(_activeCompany?.CompanyID ?? -1, PermissionsManager.CompanyWidePermissions.IssueWireTransfers);
         }
@@ -937,6 +957,121 @@ namespace CompanyStudio
             promotionExplorer = new Store.frmPromotionExplorer();
             DecorateStudioContent(promotionExplorer);
             promotionExplorer.Show(dockPanel, DockState.DockRight);
+        }
+
+        private void purchaseOrdersToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Purchasing.frmPurchaseOrderExplorer purchaseOrderExplorer = dockPanel.Contents.OfType<Purchasing.frmPurchaseOrderExplorer>().FirstOrDefault(explorer => explorer.LocationModel.LocationID == ActiveLocation?.LocationID);
+            if (purchaseOrderExplorer != null)
+            {
+                purchaseOrderExplorer.BringToFront();
+                return;
+            }
+
+            purchaseOrderExplorer = new Purchasing.frmPurchaseOrderExplorer();
+            DecorateStudioContent(purchaseOrderExplorer);
+            purchaseOrderExplorer.Show(dockPanel, DockState.DockRight);
+        }
+
+        public FleetTrackingApplication GetFleetTrackingApplication(long? companyID)
+        {
+            return fleetTrackingApplicationsByCompany.FirstOrDefault(kvp => kvp.Key == companyID).Value;
+        }
+
+        private void billsOfLadingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Purchasing.frmBillOfLadingExplorer purchaseOrderExplorer = dockPanel.Contents.OfType<Purchasing.frmBillOfLadingExplorer>().FirstOrDefault(explorer => explorer.LocationModel.LocationID == ActiveLocation?.LocationID);
+            if (purchaseOrderExplorer != null)
+            {
+                purchaseOrderExplorer.BringToFront();
+                return;
+            }
+
+            purchaseOrderExplorer = new Purchasing.frmBillOfLadingExplorer();
+            DecorateStudioContent(purchaseOrderExplorer);
+            purchaseOrderExplorer.Show(dockPanel, DockState.DockRight);
+        }
+
+        private async void receiveBillsOfLadingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            await BillOfLading.AcceptMultiple(ActiveCompany?.CompanyID, ActiveLocation?.LocationID);
+
+            Purchasing.frmBillOfLadingExplorer bolExplorer = dockPanel.Contents.OfType<Purchasing.frmBillOfLadingExplorer>().FirstOrDefault(explorer => explorer.LocationModel.LocationID == ActiveLocation?.LocationID);
+            if (bolExplorer != null)
+            {
+                await bolExplorer.RefreshData();
+            }
+        }
+
+        private void shippingReceivingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Purchasing.ShippingReceiving.frmShippingReceiving purchaseOrderExplorer = dockPanel.Contents.OfType<Purchasing.ShippingReceiving.frmShippingReceiving>().FirstOrDefault(explorer => explorer.LocationModel.LocationID == ActiveLocation?.LocationID);
+            if (purchaseOrderExplorer != null)
+            {
+                purchaseOrderExplorer.BringToFront();
+                return;
+            }
+
+            purchaseOrderExplorer = new Purchasing.ShippingReceiving.frmShippingReceiving();
+            DecorateStudioContent(purchaseOrderExplorer);
+            purchaseOrderExplorer.Show(dockPanel, DockState.Document);
+        }
+
+        private void toolQuotes_Click(object sender, EventArgs e)
+        {
+            Purchasing.frmQuoteExplorer quoteExplorer = dockPanel.Contents.OfType<Purchasing.frmQuoteExplorer>().FirstOrDefault(explorer => explorer.LocationModel.LocationID == ActiveLocation?.LocationID);
+            if (quoteExplorer != null)
+            {
+                quoteExplorer.BringToFront();
+                return;
+            }
+
+            quoteExplorer = new Purchasing.frmQuoteExplorer();
+            DecorateStudioContent(quoteExplorer);
+            quoteExplorer.Show(dockPanel, DockState.DockRight);
+        }
+
+        private void toolPurchasingPriceManager_Click(object sender, EventArgs e)
+        {
+            Store.frmStoreItems storeItems = dockPanel.Contents.OfType<Store.frmStoreItems>().FirstOrDefault(r => r.LocationModel.LocationID == ActiveLocation?.LocationID);
+            if (storeItems != null)
+            {
+                storeItems.BringToFront();
+                return;
+            }
+
+            storeItems = new Store.frmStoreItems();
+            DecorateStudioContent(storeItems);
+            storeItems.Show(dockPanel, DockState.Document);
+        }
+
+        private void tsmiStartPage_Click(object sender, EventArgs e)
+        {
+            frmStartPage startPage = new frmStartPage()
+            {
+                Studio = this
+            };
+            startPage.Show(dockPanel, DockState.Document);
+        }
+
+        private void tsmiAutomaticPayments_Click(object sender, EventArgs e)
+        {
+            Invoicing.frmAutomaticPaymentConfiguration configuration = dockPanel.Contents.OfType<Invoicing.frmAutomaticPaymentConfiguration>().FirstOrDefault(r => r.LocationModel.LocationID == ActiveLocation?.LocationID);
+            if (configuration != null)
+            {
+                configuration.BringToFront();
+                return;
+            }
+
+            configuration = new Invoicing.frmAutomaticPaymentConfiguration();
+            DecorateStudioContent(configuration);
+            configuration.Show(dockPanel, DockState.Document);
+        }
+
+        private void tsmiFulfillmentWizard_Click(object sender, EventArgs e)
+        {
+            Purchasing.Fulfillment.FulfillmentWizardController wizardController = new Purchasing.Fulfillment.FulfillmentWizardController(ActiveCompany?.CompanyID, ActiveLocation?.LocationID);
+            wizardController.StartWizard();
         }
     }
 }

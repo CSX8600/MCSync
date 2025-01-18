@@ -46,15 +46,15 @@ namespace API.Common
             (await Request.Content.ReadAsStreamAsync()).Seek(0, System.IO.SeekOrigin.Begin);
             string body = await Request.Content.ReadAsStringAsync();
 
-            var requestFields = new { requestfields = new string[0] };
+            var requestFields = new { requestfields = new string[0], additionalfields = new string[0] };
             requestFields = JsonConvert.DeserializeAnonymousType(body, requestFields);
 
-            if (requestFields?.requestfields == null || !requestFields.requestfields.Any())
+            if ((requestFields?.requestfields == null || !requestFields.requestfields.Any()) && (requestFields?.additionalfields == null || !requestFields.additionalfields.Any()))
             {
                 NameValueCollection queryString = HttpUtility.ParseQueryString(Request.RequestUri.Query);
-                if (queryString.AllKeys.Contains("requestField", StringComparer.OrdinalIgnoreCase))
+                if (queryString.AllKeys.Contains("requestField", StringComparer.OrdinalIgnoreCase) || queryString.AllKeys.Contains("additionalField", StringComparer.OrdinalIgnoreCase))
                 {
-                    requestFields = new { requestfields = queryString.GetValues("requestField") };
+                    requestFields = new { requestfields = queryString.GetValues("requestField"), additionalfields = queryString.GetValues("additionalField") };
                 }
                 else
                 {
@@ -62,7 +62,15 @@ namespace API.Common
                 }
             }
 
-            retrieveFields = DefaultRetrievedFields.Concat(RequestableFields).Intersect(requestFields.requestfields);
+            if (requestFields.requestfields?.Any() ?? false)
+            {
+                retrieveFields = DefaultRetrievedFields.Concat(RequestableFields).Intersect(requestFields.requestfields);
+            }
+            else if (requestFields.additionalfields?.Any() ?? false)
+            {
+                retrieveFields = DefaultRetrievedFields.Concat(RequestableFields.Intersect(requestFields.additionalfields));
+            }
+
             return retrieveFields;
         }
 
@@ -312,7 +320,7 @@ namespace API.Common
 
             if (!dataObject.Save())
             {
-                return BadRequest();
+                return dataObject.HandleFailedValidation(this);
             }
 
             return Ok();

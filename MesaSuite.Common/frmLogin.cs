@@ -17,6 +17,7 @@ namespace MesaSuite.Common
         public Guid ClientID { get; set; }
         public Guid State { get; set; }
         public int Port { get; set; }
+        public string LoginToProgramName { get; set; }
 
         public frmLogin()
         {
@@ -30,7 +31,7 @@ namespace MesaSuite.Common
         private void frmLogin_Shown(object sender, EventArgs e)
         {
             browser.Refresh();
-            browser.Load($"{ConfigurationManager.AppSettings.Get("MesaSuite.Common.AuthHost")}/Authorize?response_type=code&client_id={ClientID.ToString()}&redirect_uri={WebUtility.UrlEncode("http://localhost:" + Port)}&state={State.ToString()}");
+            browser.Load($"{ConfigurationManager.AppSettings.Get("MesaSuite.Common.AuthHost")}/Authorize?response_type=code&client_id={ClientID.ToString()}&redirect_uri={WebUtility.UrlEncode("http://localhost:" + Port)}&state={State.ToString()}&logintoprogramname={WebUtility.UrlEncode(LoginToProgramName)}");
         }
     }
 }

@@ -38,6 +38,7 @@ namespace GovernmentPortal
             this.cmdDelete = new System.Windows.Forms.Button();
             this.cmdSave = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.toolStrip = new System.Windows.Forms.ToolStrip();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -140,6 +141,7 @@ namespace GovernmentPortal
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.toolStrip);
             this.splitContainer1.Panel1.Controls.Add(this.lstItems);
             this.splitContainer1.Panel1.Controls.Add(this.label2);
             this.splitContainer1.Panel1.Controls.Add(this.txtSearch);
@@ -152,6 +154,15 @@ namespace GovernmentPortal
             this.splitContainer1.Size = new System.Drawing.Size(776, 397);
             this.splitContainer1.SplitterDistance = 243;
             this.splitContainer1.TabIndex = 6;
+            // 
+            // toolStrip
+            // 
+            this.toolStrip.Location = new System.Drawing.Point(0, 0);
+            this.toolStrip.Name = "toolStrip";
+            this.toolStrip.Size = new System.Drawing.Size(243, 25);
+            this.toolStrip.TabIndex = 3;
+            this.toolStrip.Text = "toolStrip1";
+            this.toolStrip.Visible = false;
             // 
             // frmGenericExplorer
             // 
@@ -187,5 +198,6 @@ namespace GovernmentPortal
         private System.Windows.Forms.Button cmdDelete;
         private System.Windows.Forms.Button cmdSave;
         private System.Windows.Forms.SplitContainer splitContainer1;
+        private System.Windows.Forms.ToolStrip toolStrip;
     }
 }

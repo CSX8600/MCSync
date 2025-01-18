@@ -11,6 +11,7 @@ using ClussPro.ObjectBasedFramework.Validation.Attributes;
 using WebModels.company;
 using WebModels.gov;
 using WebModels.invoicing;
+using WebModels.purchasing;
 
 namespace WebModels.fleet
 {
@@ -297,7 +298,22 @@ namespace WebModels.fleet
                     }
                 }
 
-                LeaseRequest leaseRequest = DataObject.GetEditableByPrimaryKey<LeaseRequest>(bid.LeaseRequestID, localTransaction, null);
+                LeaseRequest leaseRequest = DataObject.GetEditableByPrimaryKey<LeaseRequest>(bid.LeaseRequestID, localTransaction, FieldPathUtility.CreateFieldPathsAsList<LeaseRequest>(lr => new object[] { lr.FulfillmentPlans.First().FulfillmentPlanID }));
+                if (leaseRequest.FulfillmentPlans?.Any() ?? false)
+                {
+                    foreach(FulfillmentPlan fulfillmentPlan in leaseRequest.FulfillmentPlans)
+                    {
+                        FulfillmentPlan planToUpdate = DataObject.GetEditableByPrimaryKey<FulfillmentPlan>(fulfillmentPlan.FulfillmentPlanID, localTransaction, null);
+                        planToUpdate.LeaseRequestID = null;
+                        planToUpdate.RailcarID = contract.RailcarID;
+                        if (!planToUpdate.Save(localTransaction))
+                        {
+                            contract.Errors.AddRange(planToUpdate.Errors.ToArray());
+                            return contract;
+                        }
+                    }
+                }
+
                 if (!leaseRequest.Delete(localTransaction))
                 {
                     contract.Errors.AddRange(leaseRequest.Errors.ToArray());

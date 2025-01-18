@@ -30,7 +30,7 @@ public class RegisterAdministrativeAction : ActionFilterAttribute
             return;
         }
 
-        CachedEmployee cachedEmployee = await EmployeeCache.GetCachedEmpoyee(cachedRegister.CompanyID.Value, playerName);
+        CachedEmployee cachedEmployee = await EmployeeCache.GetCachedEmployee(cachedRegister.CompanyID.Value, playerName);
         if (cachedEmployee == null ||
             !cachedEmployee.PermissionsByLocationID.ContainsKey(cachedRegister.LocationID.Value) ||
             !cachedEmployee.PermissionsByLocationID[cachedRegister.LocationID.Value].Contains(nameof(LocationEmployee.ManageRegisters)))

@@ -9,7 +9,7 @@ namespace WebModels.invoicing.Validations
     {
         public override bool Evaluate(DataObject dataObject, ITransaction transaction)
         {
-            if (!(dataObject is Invoice invoice))
+            if (!(dataObject is Invoice invoice) || invoice.InvoiceID == null)
             {
                 return false;
             }

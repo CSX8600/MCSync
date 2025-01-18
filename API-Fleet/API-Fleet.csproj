@@ -84,6 +84,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\BillOfLadingController.cs" />
     <Compile Include="Controllers\EmailImplementationController.cs" />
     <Compile Include="Controllers\EmailTemplateController.cs" />
     <Compile Include="Controllers\GovernmentController.cs" />
@@ -101,6 +102,7 @@
     <Compile Include="Controllers\RailcarLoadController.cs" />
     <Compile Include="Controllers\RailcarLocationTransactionController.cs" />
     <Compile Include="Controllers\RailcarModelController.cs" />
+    <Compile Include="Controllers\RailcarRouteController.cs" />
     <Compile Include="Controllers\RailDistrictController.cs" />
     <Compile Include="Controllers\RailLocationController.cs" />
     <Compile Include="Controllers\SecurityController.cs" />

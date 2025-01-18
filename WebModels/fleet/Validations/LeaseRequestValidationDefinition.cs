@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using ClussPro.ObjectBasedFramework.Validation;
 using ClussPro.ObjectBasedFramework.Validation.Conditions;
+using WebModels.Common;
 
 namespace WebModels.fleet.Validations
 {

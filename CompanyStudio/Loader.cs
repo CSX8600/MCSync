@@ -16,5 +16,11 @@ namespace CompanyStudio
         {
             InitializeComponent();
         }
+
+        public override string Text
+        {
+            get => lblLoadingText.Text;
+            set => lblLoadingText.Text = value;
+        }
     }
 }

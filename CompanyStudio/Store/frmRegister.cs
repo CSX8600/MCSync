@@ -9,11 +9,13 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using CompanyStudio.Extensions;
 using CompanyStudio.Models;
+using MesaSuite.Common.Attributes;
 using MesaSuite.Common.Data;
 using MesaSuite.Common.Extensions;
 
 namespace CompanyStudio.Store
 {
+    [UriReachable("register/{RegisterID}")]
     public partial class frmRegister : BaseCompanyStudioContent, ILocationScoped, ISaveable
     {
         public long? RegisterID { get; set; }
@@ -61,6 +63,7 @@ namespace CompanyStudio.Store
                 get.AddLocationHeader(Company.CompanyID, LocationModel.LocationID);
                 Register register = await get.GetObject<Register>() ?? new Register();
 
+                Text = register.Name;
                 txtName.Text = register.Name;
                 txtIdentifier.Text = register.Identifier?.ToString();
                 lblCurrentStatus.Text = register.CurrentStatus?.Status.ToString().ToDisplayName();
@@ -85,6 +88,11 @@ namespace CompanyStudio.Store
         }
 
         private async void cmdSave_Click(object sender, EventArgs e)
+        {
+            await Save();
+        }
+
+        public async Task Save()
         {
             try
             {
@@ -128,11 +136,6 @@ namespace CompanyStudio.Store
             }
         }
 
-        public void Save()
-        {
-            cmdSave.PerformClick();
-        }
-
         private async void cmdOnline_Click(object sender, EventArgs e)
         {
             await SetStatus(RegisterStatus.Statuses.Online);
@@ -168,6 +171,11 @@ namespace CompanyStudio.Store
         private void frmRegister_FormClosed(object sender, FormClosedEventArgs e)
         {
             PermissionsManager.OnLocationPermissionChange -= PermissionsManager_OnLocationPermissionChange;
+        }
+
+        private void cmdCancel_Click(object sender, EventArgs e)
+        {
+            Close();
         }
     }
 }

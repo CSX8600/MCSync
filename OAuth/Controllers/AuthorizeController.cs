@@ -24,7 +24,7 @@ namespace OAuth.Controllers
     public class AuthorizeController : Controller
     {
         // GET: Authorize
-        public ActionResult Index(string response_type, string client_id, string redirect_uri, string state)
+        public ActionResult Index(string response_type, string client_id, string redirect_uri, string state, string loginToProgramName = null)
         {
             if (string.IsNullOrEmpty(response_type) ||
                 string.IsNullOrEmpty(client_id) ||
@@ -64,6 +64,10 @@ namespace OAuth.Controllers
             ModelState.SetModelValue("client_id", new ValueProviderResult(client_id, client_id, CultureInfo.CurrentCulture));
             ModelState.SetModelValue("redirect_uri", new ValueProviderResult(redirect_uri, redirect_uri, CultureInfo.CurrentCulture));
             ModelState.SetModelValue("state", new ValueProviderResult(state, state, CultureInfo.CurrentCulture));
+            if (!string.IsNullOrEmpty(loginToProgramName))
+            {
+                ModelState.SetModelValue("loginToProgramName", new ValueProviderResult(loginToProgramName, loginToProgramName, CultureInfo.CurrentCulture));
+            }
 
             return View();
         }

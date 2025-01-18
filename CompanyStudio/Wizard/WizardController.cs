@@ -14,6 +14,7 @@ namespace CompanyStudio.Wizard
     public abstract class WizardController<TData> where TData : class, new()
     {
         protected event EventHandler WizardStarting;
+        public event EventHandler WizardCompleted;
 
         private frmWizardShell _shell;
         private MultiMap<IWizardStep<TData>, StepConnection> _connections = new MultiMap<IWizardStep<TData>, StepConnection>();
@@ -42,11 +43,10 @@ namespace CompanyStudio.Wizard
         protected abstract MultiMap<IWizardStep<TData>, StepConnection> GetConnections();
         protected abstract Task WizardComplete(TData data);
 
-        public void StartWizard()
+        public async void StartWizard()
         {
             _shell = new frmWizardShell();
 
-            _data = new TData();
             _connections = GetConnections();
             _shell.lstNav.Items.Clear();
 
@@ -88,7 +88,17 @@ namespace CompanyStudio.Wizard
             _shell.cmdCancel.Click += CmdCancel_Click;
             _shell.Show();
 
+            _shell.loader.BringToFront();
+            _shell.loader.Visible = true;
+            _data = await CreateData();
+            _shell.loader.Visible = false;
+
             DisplayStep(_connections.First().Key);
+        }
+
+        protected virtual async Task<TData> CreateData()
+        {
+            return new TData();
         }
 
         private async Task DisplayStep(IWizardStep<TData> step)
@@ -205,12 +215,16 @@ namespace CompanyStudio.Wizard
                 _shell.loader.Visible = true;
                 await WizardComplete(_data);
                 _shell.Close();
+
+                WizardCompleted?.Invoke(this, EventArgs.Empty);
             }
         }
 
         private void CmdCancel_Click(object sender, EventArgs e)
         {
             _shell.Close();
+
+            WizardCompleted?.Invoke(this, EventArgs.Empty);
         }
 
         protected void ForceCloseWizard()
@@ -223,6 +237,8 @@ namespace CompanyStudio.Wizard
             {
                 _shell.Close();
             }
+
+            WizardCompleted?.Invoke(this, EventArgs.Empty);
         }
     }
 }

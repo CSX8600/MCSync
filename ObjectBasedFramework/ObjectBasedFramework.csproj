@@ -47,6 +47,7 @@
     <Compile Include="DataObject.cs" />
     <Compile Include="DataObjectFactory.cs" />
     <Compile Include="DataSearch\BooleanSearchCondition.cs" />
+    <Compile Include="DataSearch\DecimalSearchCondition.cs" />
     <Compile Include="DataSearch\IntSearchCondition.cs" />
     <Compile Include="DataSearch\SearchOrder.cs" />
     <Compile Include="DataSearch\ShortSearchCondition.cs" />

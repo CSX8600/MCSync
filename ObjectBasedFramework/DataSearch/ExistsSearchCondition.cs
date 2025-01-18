@@ -90,7 +90,6 @@ namespace ClussPro.ObjectBasedFramework.DataSearch
 
                         checkedFieldPath += fieldPathParts[i];
 
-
                         RelationshipList badRelationship = lastSchemaObject.GetRelationshipList(fieldPathParts[i]);
                         if (badRelationship != null)
                         {
@@ -103,7 +102,7 @@ namespace ClussPro.ObjectBasedFramework.DataSearch
                             throw new InvalidOperationException(string.Format("Relationship {0} on {1} does not exist.", fieldPathParts[i], lastSchemaObject.ObjectName));
                         }
 
-                        if (tableAliasesByFieldPath.ContainsKey(checkedFieldPath))
+                        if (tableAliasesByFieldPath.ContainsKey(checkedFieldPath) || existsAliasesByFieldPath.ContainsKey(checkedFieldPath))
                         {
                             lastSchemaObject = conditionRelationship.RelatedSchemaObject;
                             continue;

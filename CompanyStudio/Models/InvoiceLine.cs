@@ -10,5 +10,8 @@
         public string Description { get; set; }
         public long? ItemID { get; set; }
         public Item Item { get; set; }
+        public long? PurchaseOrderLineID { get; set; }
+        public PurchaseOrderLine PurchaseOrderLine { get; set; }
+        public Fulfillment Fulfillment { get; set; }
     }
 }

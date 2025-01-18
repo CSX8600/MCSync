@@ -36,6 +36,7 @@
             this.colManagePrices = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.colManageRegisters = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.colManageInventory = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.colManagePurchaseOrders = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dgvEmployees)).BeginInit();
             this.SuspendLayout();
             // 
@@ -51,7 +52,8 @@
             this.colManageInvoices,
             this.colManagePrices,
             this.colManageRegisters,
-            this.colManageInventory});
+            this.colManageInventory,
+            this.colManagePurchaseOrders});
             this.dgvEmployees.Location = new System.Drawing.Point(0, 0);
             this.dgvEmployees.Name = "dgvEmployees";
             this.dgvEmployees.RowHeadersWidth = 62;
@@ -106,6 +108,12 @@
             this.colManageInventory.HeaderText = "ManageInventory";
             this.colManageInventory.Name = "colManageInventory";
             // 
+            // colManagePurchaseOrders
+            // 
+            this.colManagePurchaseOrders.HeaderText = "Manage Purchase Orders";
+            this.colManagePurchaseOrders.Name = "colManagePurchaseOrders";
+            this.colManagePurchaseOrders.Width = 150;
+            // 
             // LocationEmployees
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -130,5 +138,6 @@
         private System.Windows.Forms.DataGridViewCheckBoxColumn colManagePrices;
         private System.Windows.Forms.DataGridViewCheckBoxColumn colManageRegisters;
         private System.Windows.Forms.DataGridViewCheckBoxColumn colManageInventory;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn colManagePurchaseOrders;
     }
 }

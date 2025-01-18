@@ -24,6 +24,26 @@ namespace WebModels.company.Validation
                 return true;
             }
 
+            LongSearchCondition<LocationItem> entitySearchCondition;
+            if (locationItem.LocationID != null)
+            {
+                entitySearchCondition = new LongSearchCondition<LocationItem>()
+                {
+                    Field = nameof(LocationItem.LocationID),
+                    SearchConditionType = SearchCondition.SearchConditionTypes.Equals,
+                    Value = locationItem.LocationID
+                };
+            }
+            else
+            {
+                entitySearchCondition = new LongSearchCondition<LocationItem>()
+                {
+                    Field = nameof(LocationItem.GovernmentID),
+                    SearchConditionType = SearchCondition.SearchConditionTypes.Equals,
+                    Value = locationItem.GovernmentID
+                };
+            }
+
             List<SearchCondition> andConditions = new List<SearchCondition>()
             {
                 new LongSearchCondition<LocationItem>()
@@ -32,12 +52,7 @@ namespace WebModels.company.Validation
                     SearchConditionType = SearchCondition.SearchConditionTypes.Equals,
                     Value = locationItem.ItemID
                 },
-                new LongSearchCondition<LocationItem>()
-                {
-                    Field = nameof(LocationItem.LocationID),
-                    SearchConditionType = SearchCondition.SearchConditionTypes.Equals,
-                    Value = locationItem.LocationID
-                }
+                entitySearchCondition
             };
 
             if (locationItem.LocationItemID != null)

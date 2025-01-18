@@ -1,5 +1,7 @@
-﻿using System;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
+using System;
+using System.Collections;
+using System.Linq;
 
 namespace MesaSuite.Common.Extensions
 {
@@ -25,6 +27,17 @@ namespace MesaSuite.Common.Extensions
             {
                 return defaultIfNullOrException;
             }
+        }
+
+        public static T ShallowClone<T>(this T anObject) where T : new()
+        {
+            T clone = new T();
+            foreach (var property in anObject.GetType().GetProperties().Where(p => !(p.PropertyType is IEnumerable) && p.CanWrite))
+            {
+                property.SetValue(clone, property.GetValue(anObject));
+            }
+
+            return clone;
         }
     }
 }

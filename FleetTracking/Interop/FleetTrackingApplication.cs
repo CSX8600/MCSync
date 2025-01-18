@@ -34,6 +34,7 @@ namespace FleetTracking.Interop
             RegisterCallback(securityPermissionCheckCallback);
 
             _permissionsThread = new Thread(new ParameterizedThreadStart(PermissionsChecker));
+            _permissionsThread.IsBackground = true;
             _permissionsTokenSource = new CancellationTokenSource();
             _permissionsThread.Start(_permissionsTokenSource.Token);
         }
@@ -103,10 +104,27 @@ namespace FleetTracking.Interop
             parentForm.Text = "Browse Equipment Roster";
         }
 
+        public void OpenRailcarDetail(long? railcarID)
+        {
+            OpenForm(new Roster.RailcarDetail() { Application = this, RailcarID = railcarID });
+        }
+
         public void ManageLeasing()
         {
             Form parentForm = OpenForm(new Leasing.LeaseManagement() { Application = this });
             parentForm.Text = "Manage Leasing";
+        }
+
+        public long? CreateNewLease()
+        {
+            Leasing.LeaseRequestDetail leaseRequest = new Leasing.LeaseRequestDetail() { Application = this, CloseOnSave = true };
+            OpenForm(leaseRequest, OpenFormOptions.Dialog);
+            return leaseRequest.LeaseRequestID;
+        }
+
+        public void OpenLeaseRequestDetail(long? leaseRequestID)
+        {
+            OpenForm(new Leasing.LeaseRequestDetail() { Application = this, LeaseRequestID = leaseRequestID }, OpenFormOptions.Popout);
         }
 
         public void BrowseTrainSymbols()
@@ -228,6 +246,7 @@ namespace FleetTracking.Interop
                 toolStrip = new ToolStripMenuItem("Fleet Tracking", Properties.Resources.lorry);
                 toolStrip.ImageScaling = ToolStripItemImageScaling.None;
                 toolStrip.DropDownOpened += Navigation_DropDownOpening;
+                toolStrip.Name = "mnuFleetTracking";
                 foreach(MainNavigationItem item in items)
                 {
                     AddItemToToolStrip(item, toolStrip);
@@ -258,6 +277,7 @@ namespace FleetTracking.Interop
             newStripItem.Tag = item;
             newStripItem.Image = item.Image;
             newStripItem.ImageScaling = ToolStripItemImageScaling.None;
+            newStripItem.Name = "mnu" + item.Text.Replace(" ", "");
             toolStripMenuItem.DropDownItems.Add(newStripItem);
 
             if (item.SubItems != null)

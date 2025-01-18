@@ -64,7 +64,7 @@ namespace CompanyStudio.Store
                 List<Company> companies = await get.GetObject<List<Company>>() ?? new List<Company>();
                 foreach(Company company in companies)
                 {
-                    foreach(Location location in company.Locations.Where(l => l.LocationID != LocationID && PermissionsManager.HasPermission(l.LocationID.Value, PermissionsManager.LocationWidePermissions.ManagePrices)))
+                    foreach(Location location in company.Locations.Where(l => l.LocationID != LocationID && (PermissionsManager.HasPermission(l.LocationID.Value, PermissionsManager.LocationWidePermissions.ManagePrices) || PermissionsManager.HasPermission(l.LocationID.Value, PermissionsManager.LocationWidePermissions.ManagePurchaseOrders))))
                     {
                         DropDownItem<Location> ddi = new DropDownItem<Location>(location, company.Name + " (" + location.Name + ")");
                         lstLocations.Items.Add(ddi);
@@ -107,7 +107,11 @@ namespace CompanyStudio.Store
         {
             if (e.LocationID == LocationID && e.Permission == PermissionsManager.LocationWidePermissions.ManagePrices && !e.Value)
             {
-                Close();
+                if (!PermissionsManager.HasPermission(LocationID.Value, PermissionsManager.LocationWidePermissions.ManagePrices) &&
+                    !PermissionsManager.HasPermission(LocationID.Value, PermissionsManager.LocationWidePermissions.ManagePurchaseOrders))
+                {
+                    Close();
+                }
             }
         }
 
@@ -142,7 +146,7 @@ namespace CompanyStudio.Store
 
                 if (put.RequestSuccessful && chkEnabled.Checked)
                 {
-                    List<Location> locationsToAdd = lstLocations.Items.OfType<DropDownItem<Location>>().Select(x => x.Object).Where(x => !Locations.Any(l => l.LocationIDDestination == x.LocationID)).ToList();
+                    List<Location> locationsToAdd = lstLocations.SelectedItems.OfType<DropDownItem<Location>>().Select(x => x.Object).Where(x => !Locations.Any(l => l.LocationIDDestination == x.LocationID)).ToList();
                     foreach (Location locationToAdd in locationsToAdd)
                     {
                         StorePricingAutomationLocation automationLocation = new StorePricingAutomationLocation();

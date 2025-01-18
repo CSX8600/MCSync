@@ -81,5 +81,13 @@ namespace WebModels.company
             get { CheckGet(); return _manageInventory; }
             set { CheckSet(); _manageInventory = value; }
         }
+
+        private bool _managePurchaseOrders = false;
+        [Field("941E2E57-7076-4D5C-A895-77E1BBA76E0D")]
+        public bool ManagePurchaseOrders
+        {
+            get { CheckGet(); return _managePurchaseOrders; }
+            set { CheckSet(); _managePurchaseOrders = value; }
+        }
     }
 }

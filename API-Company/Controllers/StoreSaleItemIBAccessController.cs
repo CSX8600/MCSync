@@ -116,7 +116,7 @@ namespace API_Company.Controllers
                                 SearchConditionType = SearchCondition.SearchConditionTypes.Equals,
                                 Value = storeItem.Name
                             },
-                            new IntSearchCondition<LocationItem>()
+                            new DecimalSearchCondition<LocationItem>()
                             {
                                 Field = nameof(LocationItem.Quantity),
                                 SearchConditionType = SearchCondition.SearchConditionTypes.Equals,
@@ -232,7 +232,7 @@ namespace API_Company.Controllers
         public class StoreItem
         {
             public string Name { get; set; }
-            public int Amount { get; set; }
+            public decimal Amount { get; set; }
             public decimal SaleAmount { get; set; }
         }
 

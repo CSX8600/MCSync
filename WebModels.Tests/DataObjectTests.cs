@@ -81,9 +81,9 @@ namespace WebModels.Tests
             {
                 foreach(Field field in schemaObject.GetFields().Where(f => !f.HasOperation))
                 {
-                    if (field.FieldType == ClussPro.Base.Data.FieldSpecification.FieldTypes.DateTime2 && field.DataSize == -1)
+                    if ((field.FieldType == ClussPro.Base.Data.FieldSpecification.FieldTypes.DateTime2 || field.FieldType == ClussPro.Base.Data.FieldSpecification.FieldTypes.Decimal) && field.DataSize == -1)
                     {
-                        errors.AppendLine($"Field {field.ParentSchemaObject.SchemaName}.{field.ParentSchemaObject.ObjectName}.{field.FieldName} is of SQL type DateTime2, but does not have a DataSize specified.");
+                        errors.AppendLine($"Field {field.ParentSchemaObject.SchemaName}.{field.ParentSchemaObject.ObjectName}.{field.FieldName} is of SQL type {field.FieldType}, but does not have a DataSize specified.");
                     }
                 }
             }

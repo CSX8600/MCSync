@@ -153,7 +153,7 @@ namespace CompanyStudio.Email
             SetAliasFields();
         }
 
-        public async void Save()
+        public async Task Save()
         {
             if (string.IsNullOrEmpty(txtName.Text))
             {

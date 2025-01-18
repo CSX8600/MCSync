@@ -15,6 +15,7 @@ using System.Windows.Forms;
 
 namespace GovernmentPortal
 {
+    [ToolboxItem(false)]
     public partial class ItemSelector : UserControl
     {
         private CancellationTokenSource _loadDataSource;

@@ -82,6 +82,7 @@ namespace DevTools
             listener.Start();
 
             authThread = new Thread(new ThreadStart(Listen));
+            authThread.IsBackground = true;
             authThread.Start();
         }
 

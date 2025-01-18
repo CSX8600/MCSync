@@ -42,6 +42,7 @@
             this.toolUncheckAll = new System.Windows.Forms.ToolStripButton();
             this.loader = new FleetTracking.Loader();
             this.dataGridViewStylizer = new FleetTracking.DataGridViewStylizer(this.components);
+            this.chkPrintBOLs = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.dgvTracks)).BeginInit();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -161,10 +162,22 @@
             this.loader.TabIndex = 5;
             this.loader.Visible = false;
             // 
+            // chkPrintBOLs
+            // 
+            this.chkPrintBOLs.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.chkPrintBOLs.AutoSize = true;
+            this.chkPrintBOLs.Location = new System.Drawing.Point(236, 322);
+            this.chkPrintBOLs.Name = "chkPrintBOLs";
+            this.chkPrintBOLs.Size = new System.Drawing.Size(177, 17);
+            this.chkPrintBOLs.TabIndex = 6;
+            this.chkPrintBOLs.Text = "Network Print BOLs on selected";
+            this.chkPrintBOLs.UseVisualStyleBackColor = true;
+            // 
             // SelectTracks
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.chkPrintBOLs);
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.cmdCancel);
             this.Controls.Add(this.cmdRunReport);
@@ -198,5 +211,6 @@
         private System.Windows.Forms.ToolStripButton toolUncheckAll;
         private DataGridViewStylizer dataGridViewStylizer;
         private Loader loader;
+        private System.Windows.Forms.CheckBox chkPrintBOLs;
     }
 }

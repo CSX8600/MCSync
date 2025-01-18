@@ -8,6 +8,7 @@ using API.Common.Extensions;
 using API_Company.Attributes;
 using ClussPro.ObjectBasedFramework;
 using ClussPro.ObjectBasedFramework.DataSearch;
+using ClussPro.ObjectBasedFramework.Utility;
 using WebModels.company;
 using WebModels.invoicing;
 using WebModels.mesasys;
@@ -21,19 +22,26 @@ namespace API_Company.Controllers
     {
         private long LocationID => long.Parse(Request.Headers.GetValues("LocationID").First());
 
-        public override IEnumerable<string> DefaultRetrievedFields => new[]
+        public override IEnumerable<string> DefaultRetrievedFields => FieldPathUtility.CreateFieldPathsAsList<InvoiceLine>(il => new object[]
         {
-            nameof(InvoiceLine.InvoiceLineID),
-            nameof(InvoiceLine.InvoiceID),
-            nameof(InvoiceLine.Description),
-            nameof(InvoiceLine.Quantity),
-            nameof(InvoiceLine.UnitCost),
-            nameof(InvoiceLine.Total),
-            nameof(InvoiceLine.ItemID),
-            $"{nameof(InvoiceLine.Item)}.{nameof(Item.ItemID)}",
-            $"{nameof(InvoiceLine.Item)}.{nameof(Item.Name)}",
-            $"{nameof(InvoiceLine.Item)}.{nameof(Item.IsFluid)}"
-        };
+            il.InvoiceLineID,
+            il.InvoiceID,
+            il.Description,
+            il.Quantity,
+            il.UnitCost,
+            il.Total,
+            il.ItemID,
+            il.PurchaseOrderLineID,
+            il.Fulfillment.FulfillmentID,
+            il.Fulfillment.FulfillmentTime,
+            il.Fulfillment.Quantity,
+            il.Fulfillment.Railcar.RailcarID,
+            il.Fulfillment.Railcar.ReportingMark,
+            il.Fulfillment.Railcar.ReportingNumber,
+            il.Item.ItemID,
+            il.Item.Name,
+            il.Item.IsFluid
+        });
 
         public override ISearchCondition GetBaseSearchCondition()
         {

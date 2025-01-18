@@ -30,7 +30,7 @@ namespace CompanyStudio
         private void InitializeComponent()
         {
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
-            this.label2 = new System.Windows.Forms.Label();
+            this.lblLoadingText = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.SuspendLayout();
             // 
@@ -45,16 +45,16 @@ namespace CompanyStudio
             this.pictureBox2.TabIndex = 3;
             this.pictureBox2.TabStop = false;
             // 
-            // label2
+            // lblLoadingText
             // 
-            this.label2.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(106, 38);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(89, 25);
-            this.label2.TabIndex = 2;
-            this.label2.Text = "Loading";
+            this.lblLoadingText.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.lblLoadingText.AutoSize = true;
+            this.lblLoadingText.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblLoadingText.Location = new System.Drawing.Point(106, 38);
+            this.lblLoadingText.Name = "lblLoadingText";
+            this.lblLoadingText.Size = new System.Drawing.Size(89, 25);
+            this.lblLoadingText.TabIndex = 2;
+            this.lblLoadingText.Text = "Loading";
             // 
             // Loader
             // 
@@ -62,7 +62,7 @@ namespace CompanyStudio
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Transparent;
             this.Controls.Add(this.pictureBox2);
-            this.Controls.Add(this.label2);
+            this.Controls.Add(this.lblLoadingText);
             this.Name = "Loader";
             this.Size = new System.Drawing.Size(196, 101);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
@@ -74,6 +74,6 @@ namespace CompanyStudio
         #endregion
 
         private System.Windows.Forms.PictureBox pictureBox2;
-        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label lblLoadingText;
     }
 }

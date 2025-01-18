@@ -29,5 +29,17 @@ namespace MesaSuite.Common.Extensions
 
             return null;
         }
+
+        public static TreeNode[] AllNodes(this TreeNodeCollection collection)
+        {
+            List<TreeNode> nodes = new List<TreeNode>();
+            foreach(TreeNode node in collection)
+            {
+                nodes.Add(node);
+                nodes.AddRange(node.Nodes.AllNodes());
+            }
+
+            return nodes.ToArray();
+        }
     }
 }

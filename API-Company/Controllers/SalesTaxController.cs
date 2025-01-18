@@ -12,7 +12,6 @@ namespace API_Company.Controllers
 {
     [MesabrookAuthorization]
     [ProgramAccess("company")]
-    [CompanyAccess]
     public class SalesTaxController : ApiController
     {
         [HttpGet]

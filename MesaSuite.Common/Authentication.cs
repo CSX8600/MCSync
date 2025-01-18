@@ -24,9 +24,10 @@ namespace MesaSuite.Common
         public static event EventHandler OnLoggedOut;
         public static event EventHandler OnProgramUpdate;
         private static AuthenticationStatuses _authenticationStatus = AuthenticationStatuses.LoggedOut;
+        private static object _authenticationLock = new object();
         public static AuthenticationStatuses AuthenticationStatus
         {
-            get { return _authenticationStatus; }
+            get { lock (_authenticationLock) { return _authenticationStatus; } }
             private set
             {
                 _authenticationStatus = value;
@@ -100,19 +101,22 @@ namespace MesaSuite.Common
         private static string RefreshToken { get; set; }
         private static DateTime Expiration { get; set; }
 
-        public static string GetAuthToken(bool doLogIn = false)
+        public static string GetAuthToken(bool doLogIn = false, string loginToProgramName = null)
         {
-            if (string.IsNullOrEmpty(AuthToken) && doLogIn)
+            lock (_authenticationLock)
             {
-                DoLogIn();
-            }
+                if (string.IsNullOrEmpty(AuthToken) && doLogIn)
+                {
+                    DoLogIn(loginToProgramName);
+                }
 
-            if (!string.IsNullOrEmpty(AuthToken) && Expiration <= DateTime.Now)
-            {
-                RefreshTokenRequest();
-            }
+                if (!string.IsNullOrEmpty(AuthToken) && Expiration <= DateTime.Now)
+                {
+                    RefreshTokenRequest();
+                }
 
-            return AuthToken;
+                return AuthToken;
+            }
         }
 
         public static void Register()
@@ -172,7 +176,7 @@ namespace MesaSuite.Common
             }
         }
 
-        private static void DoLogIn()
+        private static void DoLogIn(string loginToProgramName = null)
         {
             if (ClientID == null)
             {
@@ -186,6 +190,7 @@ namespace MesaSuite.Common
             login.Port = PORT;
             login.ClientID = ClientID.Value;
             login.State = state;
+            login.LoginToProgramName = loginToProgramName;
             login.DialogResult = DialogResult.Cancel;
 
             HttpListener listener = null;
@@ -460,6 +465,7 @@ namespace MesaSuite.Common
             AuthenticationStatus = string.IsNullOrEmpty(AuthToken) ? AuthenticationStatuses.LoggedOut : AuthenticationStatuses.LoggedIn;
 
             programThread = new Thread(new ThreadStart(ProgramThreadLogic));
+            programThread.IsBackground = true;
             programThread.Start();
         }
 

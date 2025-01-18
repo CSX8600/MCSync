@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ClussPro.ObjectBasedFramework.Validation;
+using WebModels.Common;
 
 namespace WebModels.fleet.Validations
 {

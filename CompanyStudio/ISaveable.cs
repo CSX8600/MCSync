@@ -9,6 +9,6 @@ namespace CompanyStudio
     public interface ISaveable
     {
         event EventHandler OnSave;
-        void Save();
+        Task Save();
     }
 }

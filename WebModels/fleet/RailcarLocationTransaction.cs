@@ -169,7 +169,7 @@ namespace WebModels.fleet
                 new Order()
                 {
                     OrderDirection = Order.OrderDirections.Descending,
-                    Field = "TransactionTime"
+                    Field = $"{myAlias}.TransactionTime"
                 }
             };
 
@@ -208,7 +208,7 @@ namespace WebModels.fleet
             };
             subQuery.OrderByList = new List<Order>()
             {
-                new Order() { Field = "TransactionTime" }
+                new Order() { Field = $"{myAlias}.TransactionTime" }
             };
 
             return new Condition()

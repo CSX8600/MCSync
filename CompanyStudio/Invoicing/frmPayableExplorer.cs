@@ -93,7 +93,7 @@ namespace CompanyStudio.Invoicing
                 return;
             }
 
-            frmPayableInvoice payableInvoice = Studio.dockPanel.Documents.OfType<frmPayableInvoice>().FirstOrDefault(payInv => payInv.Invoice?.InvoiceID == invoice.InvoiceID);
+            frmPayableInvoice payableInvoice = Studio.dockPanel.Documents.OfType<frmPayableInvoice>().FirstOrDefault(payInv => payInv.InvoiceID == invoice.InvoiceID);
             if (payableInvoice != null)
             {
                 payableInvoice.Activate();
@@ -104,7 +104,7 @@ namespace CompanyStudio.Invoicing
             Studio.DecorateStudioContent(payableInvoice);
             payableInvoice.Company = Company;
             payableInvoice.LocationModel = LocationModel;
-            payableInvoice.Invoice = invoice;
+            payableInvoice.InvoiceID = invoice.InvoiceID;
             payableInvoice.OnSave += PayableInvoice_OnSave;
             payableInvoice.FormClosed += PayableInvoice_FormClosed;
             payableInvoice.Show(Studio.dockPanel, WeifenLuo.WinFormsUI.Docking.DockState.Document);

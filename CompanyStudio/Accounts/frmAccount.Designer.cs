@@ -189,6 +189,7 @@ namespace CompanyStudio.Accounts
             this.cmdCancel.TabIndex = 5;
             this.cmdCancel.Text = "Cancel";
             this.cmdCancel.UseVisualStyleBackColor = true;
+            this.cmdCancel.Click += new System.EventHandler(this.cmdCancel_Click);
             // 
             // tctrlInfo
             // 
@@ -364,7 +365,7 @@ namespace CompanyStudio.Accounts
             this.colYear.HeaderText = "Year";
             this.colYear.Name = "colYear";
             this.colYear.ReadOnly = true;
-            this.colYear.Width = 52;
+            this.colYear.Width = 54;
             // 
             // colQuarter
             // 
@@ -483,7 +484,7 @@ namespace CompanyStudio.Accounts
             this.tsbDeleteDebitCards.Image = global::CompanyStudio.Properties.Resources.vcard_delete;
             this.tsbDeleteDebitCards.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbDeleteDebitCards.Name = "tsbDeleteDebitCards";
-            this.tsbDeleteDebitCards.Size = new System.Drawing.Size(120, 28);
+            this.tsbDeleteDebitCards.Size = new System.Drawing.Size(127, 28);
             this.tsbDeleteDebitCards.Text = "Delete Debit Card";
             this.tsbDeleteDebitCards.Click += new System.EventHandler(this.tsbDeleteDebitCards_Click);
             // 

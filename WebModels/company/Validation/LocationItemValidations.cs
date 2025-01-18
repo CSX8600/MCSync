@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WebModels.Common;
 using WebModels.mesasys;
 
 namespace WebModels.company.Validation
@@ -19,6 +20,13 @@ namespace WebModels.company.Validation
         {
             get
             {
+                yield return new ValidationRule()
+                {
+                    ID = new Guid("F7F9779A-D875-46C4-A75E-A7DF4D946072"),
+                    Message = "Location or Government must be specified, but not both",
+                    Condition = new XOrPresenceCondition(nameof(LocationItem.LocationID), nameof(LocationItem.GovernmentID))
+                };
+
                 yield return new ValidationRule()
                 {
                     ID = new Guid("E8746C21-B4F6-47D6-A11A-8B20D6DAF656"),

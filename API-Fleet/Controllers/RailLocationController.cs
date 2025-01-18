@@ -34,6 +34,7 @@ namespace API_Fleet.Controllers
             rl.Track.RailDistrict.Name,
             rl.TrainID,
             rl.Train.TrainID,
+            rl.Train.TimeOnDuty,
             rl.Train.TrainSymbolID,
             rl.Train.TrainSymbol.TrainSymbolID,
             rl.Train.TrainSymbol.Name,

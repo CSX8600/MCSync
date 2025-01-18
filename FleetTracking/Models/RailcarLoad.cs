@@ -8,5 +8,6 @@
         public long? ItemID { get; set; }
         public Item Item { get; set; }
         public decimal? Quantity { get; set; }
+        public long? PurchaseOrderLineID { get; set; }
     }
 }

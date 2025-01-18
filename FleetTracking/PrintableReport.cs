@@ -53,6 +53,8 @@ namespace FleetTracking
             {
                 cmdNetworkPrint.Visible = true;
             }
+
+            reportViewer.SetDisplayMode(DisplayMode.PrintLayout);
         }
 
         private async void cmdNetworkPrint_Click(object sender, EventArgs e)

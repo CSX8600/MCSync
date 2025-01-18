@@ -21,7 +21,8 @@ namespace API_Company.Controllers
             nameof(LocationEmployee.ManageInvoices),
             nameof(LocationEmployee.ManagePrices),
             nameof(LocationEmployee.ManageRegisters),
-            nameof(LocationEmployee.ManageInventory)
+            nameof(LocationEmployee.ManageInventory),
+            nameof(LocationEmployee.ManagePurchaseOrders),
         };
 
         public override ISearchCondition GetBaseSearchCondition()

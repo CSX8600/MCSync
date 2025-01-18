@@ -67,12 +67,15 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServiceTasks\CleanupDatabaseTask.cs" />
     <Compile Include="ServiceTasks\DiscordHeartbeatTask.cs" />
     <Compile Include="ServiceTasks\IssueAccountInterest.cs" />
     <Compile Include="ServiceTasks\AuditAccountBalances.cs" />
     <Compile Include="ServiceTasks\AuditFiscalQuarters.cs" />
     <Compile Include="ServiceTasks\IServiceTask.cs" />
+    <Compile Include="ServiceTasks\IssueFulfillmentInvoices.cs" />
     <Compile Include="ServiceTasks\IssueRecurringLeaseInvoices.cs" />
+    <Compile Include="ServiceTasks\PayAPInvoicesTask.cs" />
     <Compile Include="ServiceTasks\SendOutboundEmails.cs" />
     <Compile Include="ServiceTasks\HandleUserInactivity.cs" />
     <Content Include="..\SqlServerProvider\bin\Debug\MSSqlServerProvider.dll">

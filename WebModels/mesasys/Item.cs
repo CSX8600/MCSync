@@ -9,6 +9,7 @@ using System.Text;
 using WebModels.company;
 using WebModels.fleet;
 using WebModels.invoicing;
+using WebModels.purchasing;
 
 namespace WebModels.mesasys
 {
@@ -116,6 +117,35 @@ namespace WebModels.mesasys
         public IReadOnlyCollection<InvoiceLine> InvoiceLines
         {
             get { CheckGet(); return _invoiceLines; }
+        }
+        #endregion
+        #region purchasing
+        private List<PurchaseOrderLine> _purchaseOrderLines = new List<PurchaseOrderLine>();
+        [RelationshipList("C1986DB7-9394-435F-BCD9-9718D17C03F6", nameof(PurchaseOrderLine.ItemID))]
+        public IReadOnlyCollection<PurchaseOrderLine> PurchaseOrderLines
+        {
+            get { CheckGet(); return _purchaseOrderLines; }
+        }
+
+        private List<BillOfLadingItem> _billOfLadingItems = new List<BillOfLadingItem>();
+        [RelationshipList("EF1D2423-77F4-4DF8-9D9D-012CE93C2D44", nameof(BillOfLadingItem.ItemID))]
+        public IReadOnlyCollection<BillOfLadingItem> BillOfLadingItems
+        {
+            get { CheckGet(); return _billOfLadingItems; }
+        }
+
+        private List<QuotationItem> _quotationItems = new List<QuotationItem>();
+        [RelationshipList("0D19E972-F3C0-499F-BA88-B2D73ED4471D", nameof(QuotationItem.ItemID))]
+        public IReadOnlyCollection<QuotationItem> QuotationItems
+        {
+            get { CheckGet(); return _quotationItems; }
+        }
+
+        private List<QuotationRequestItem> _quotationRequestItems = new List<QuotationRequestItem>();
+        [RelationshipList("6BED0964-A2B7-4D28-8903-FD973ACAC6E6", nameof(QuotationRequestItem.ItemID))]
+        public IReadOnlyCollection<QuotationRequestItem> quotationRequestItems
+        {
+            get { CheckGet(); return _quotationRequestItems; }
         }
         #endregion
         #endregion

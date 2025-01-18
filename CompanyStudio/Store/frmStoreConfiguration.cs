@@ -26,6 +26,7 @@ namespace CompanyStudio.Store
 
         private async void frmStoreConfiguration_Load(object sender, EventArgs e)
         {
+            AppendCompanyLocationNameToWindowText();
             PermissionsManager.OnLocationPermissionChange += PermissionsManager_OnLocationPermissionChange;
 
             GetData get = new GetData(DataAccess.APIs.CompanyStudio, $"Location/Get/{LocationModel.LocationID}");
@@ -59,7 +60,7 @@ namespace CompanyStudio.Store
             }
         }
 
-        public async void Save()
+        public async Task Save()
         {
             Dictionary<string, object> patchData = new Dictionary<string, object>()
             {

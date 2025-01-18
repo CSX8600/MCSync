@@ -31,6 +31,7 @@ namespace CompanyStudio.CompanyForms
             $"{nameof(Models.Location.LocationEmployees)}.{nameof(LocationEmployee.ManageRegisters)}",
             $"{nameof(Models.Location.LocationEmployees)}.{nameof(LocationEmployee.ManageInventory)}",
             $"{nameof(Models.Location.LocationEmployees)}.{nameof(LocationEmployee.ManagePrices)}",
+            $"{nameof(Models.Location.LocationEmployees)}.{nameof(LocationEmployee.ManagePurchaseOrders)}",
             $"{nameof(Models.Location.LocationEmployees)}.{nameof(LocationEmployee.Employee)}",
             $"{nameof(Models.Location.LocationEmployees)}.{nameof(LocationEmployee.Employee)}.{nameof(Employee.EmployeeID)}",
             $"{nameof(Models.Location.LocationEmployees)}.{nameof(LocationEmployee.Employee)}.{nameof(Employee.EmployeeName)}",

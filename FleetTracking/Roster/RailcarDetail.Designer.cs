@@ -63,11 +63,17 @@
             this.cmdPrevious = new System.Windows.Forms.Button();
             this.cmdFirst = new System.Windows.Forms.Button();
             this.dgvHistory = new System.Windows.Forms.DataGridView();
-            this.loaderHistory = new FleetTracking.Loader();
-            this.dataGridViewStylizer = new FleetTracking.DataGridViewStylizer(this.components);
             this.colTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colTrain = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colTrack = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.loaderHistory = new FleetTracking.Loader();
+            this.dataGridViewStylizer = new FleetTracking.DataGridViewStylizer(this.components);
+            this.tabRoute = new System.Windows.Forms.TabPage();
+            this.dgvRoute = new System.Windows.Forms.DataGridView();
+            this.loaderRoute = new FleetTracking.Loader();
+            this.colRouteSort = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colRouteFrom = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colRouteTo = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.pboxImage)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -77,6 +83,8 @@
             this.tabControl.SuspendLayout();
             this.tabHistory.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvHistory)).BeginInit();
+            this.tabRoute.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvRoute)).BeginInit();
             this.SuspendLayout();
             // 
             // cmdReset
@@ -374,7 +382,7 @@
             this.tabGeneral.Controls.Add(this.loaderGeneral);
             this.tabGeneral.Location = new System.Drawing.Point(4, 22);
             this.tabGeneral.Name = "tabGeneral";
-            this.tabGeneral.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.tabGeneral.Padding = new System.Windows.Forms.Padding(3);
             this.tabGeneral.Size = new System.Drawing.Size(741, 289);
             this.tabGeneral.TabIndex = 0;
             this.tabGeneral.Text = "General";
@@ -397,6 +405,7 @@
             // 
             this.tabControl.Controls.Add(this.tabGeneral);
             this.tabControl.Controls.Add(this.tabHistory);
+            this.tabControl.Controls.Add(this.tabRoute);
             this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl.Location = new System.Drawing.Point(0, 0);
             this.tabControl.Name = "tabControl";
@@ -415,7 +424,7 @@
             this.tabHistory.Controls.Add(this.loaderHistory);
             this.tabHistory.Location = new System.Drawing.Point(4, 22);
             this.tabHistory.Name = "tabHistory";
-            this.tabHistory.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.tabHistory.Padding = new System.Windows.Forms.Padding(3);
             this.tabHistory.Size = new System.Drawing.Size(741, 289);
             this.tabHistory.TabIndex = 1;
             this.tabHistory.Text = "Location History";
@@ -489,19 +498,6 @@
             this.dgvHistory.Size = new System.Drawing.Size(735, 254);
             this.dgvHistory.TabIndex = 0;
             // 
-            // loaderHistory
-            // 
-            this.loaderHistory.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.loaderHistory.BackColor = System.Drawing.Color.Transparent;
-            this.loaderHistory.Location = new System.Drawing.Point(0, 0);
-            this.loaderHistory.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.loaderHistory.Name = "loaderHistory";
-            this.loaderHistory.Size = new System.Drawing.Size(742, 290);
-            this.loaderHistory.TabIndex = 1;
-            this.loaderHistory.Visible = false;
-            // 
             // colTime
             // 
             this.colTime.HeaderText = "Time";
@@ -523,6 +519,82 @@
             this.colTrack.Name = "colTrack";
             this.colTrack.Width = 150;
             // 
+            // loaderHistory
+            // 
+            this.loaderHistory.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.loaderHistory.BackColor = System.Drawing.Color.Transparent;
+            this.loaderHistory.Location = new System.Drawing.Point(0, 0);
+            this.loaderHistory.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.loaderHistory.Name = "loaderHistory";
+            this.loaderHistory.Size = new System.Drawing.Size(742, 290);
+            this.loaderHistory.TabIndex = 1;
+            this.loaderHistory.Visible = false;
+            // 
+            // tabRoute
+            // 
+            this.tabRoute.Controls.Add(this.dgvRoute);
+            this.tabRoute.Controls.Add(this.loaderRoute);
+            this.tabRoute.Location = new System.Drawing.Point(4, 22);
+            this.tabRoute.Name = "tabRoute";
+            this.tabRoute.Padding = new System.Windows.Forms.Padding(3);
+            this.tabRoute.Size = new System.Drawing.Size(741, 289);
+            this.tabRoute.TabIndex = 2;
+            this.tabRoute.Text = "Route";
+            this.tabRoute.UseVisualStyleBackColor = true;
+            // 
+            // dgvRoute
+            // 
+            this.dgvRoute.AllowUserToAddRows = false;
+            this.dgvRoute.AllowUserToDeleteRows = false;
+            this.dgvRoute.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvRoute.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.colRouteSort,
+            this.colRouteFrom,
+            this.colRouteTo});
+            this.dgvRoute.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvRoute.Location = new System.Drawing.Point(3, 3);
+            this.dgvRoute.Name = "dgvRoute";
+            this.dgvRoute.ReadOnly = true;
+            this.dgvRoute.RowHeadersVisible = false;
+            this.dgvRoute.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgvRoute.Size = new System.Drawing.Size(735, 283);
+            this.dgvRoute.TabIndex = 0;
+            // 
+            // loaderRoute
+            // 
+            this.loaderRoute.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.loaderRoute.BackColor = System.Drawing.Color.Transparent;
+            this.loaderRoute.Location = new System.Drawing.Point(3, 3);
+            this.loaderRoute.Name = "loaderRoute";
+            this.loaderRoute.Size = new System.Drawing.Size(735, 283);
+            this.loaderRoute.TabIndex = 1;
+            this.loaderRoute.Visible = false;
+            // 
+            // colRouteSort
+            // 
+            this.colRouteSort.HeaderText = "Sort";
+            this.colRouteSort.Name = "colRouteSort";
+            this.colRouteSort.ReadOnly = true;
+            this.colRouteSort.Width = 50;
+            // 
+            // colRouteFrom
+            // 
+            this.colRouteFrom.HeaderText = "From";
+            this.colRouteFrom.Name = "colRouteFrom";
+            this.colRouteFrom.ReadOnly = true;
+            this.colRouteFrom.Width = 250;
+            // 
+            // colRouteTo
+            // 
+            this.colRouteTo.HeaderText = "To";
+            this.colRouteTo.Name = "colRouteTo";
+            this.colRouteTo.ReadOnly = true;
+            this.colRouteTo.Width = 250;
+            // 
             // RailcarDetail
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -541,6 +613,8 @@
             this.tabControl.ResumeLayout(false);
             this.tabHistory.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvHistory)).EndInit();
+            this.tabRoute.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvRoute)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -586,5 +660,11 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn colTime;
         private System.Windows.Forms.DataGridViewTextBoxColumn colTrain;
         private System.Windows.Forms.DataGridViewTextBoxColumn colTrack;
+        private System.Windows.Forms.TabPage tabRoute;
+        private System.Windows.Forms.DataGridView dgvRoute;
+        private Loader loaderRoute;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colRouteSort;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colRouteFrom;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colRouteTo;
     }
 }

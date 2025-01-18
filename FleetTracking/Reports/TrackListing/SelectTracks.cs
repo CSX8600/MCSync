@@ -11,6 +11,7 @@ using FleetTracking.Attributes;
 using FleetTracking.Interop;
 using FleetTracking.Models;
 using MesaSuite.Common.Data;
+using MesaSuite.Common.Extensions;
 
 namespace FleetTracking.Reports.TrackListing
 {
@@ -95,7 +96,7 @@ namespace FleetTracking.Reports.TrackListing
                 bool visible = true;
                 if (!string.IsNullOrEmpty(txtSearch.Text) && row.Tag is Track track)
                 {
-                    visible = track.Name.Contains(txtSearch.Text) || (track.RailDistrict?.Name != null && track.RailDistrict.Name.Contains(txtSearch.Text));
+                    visible = track.Name.ToLowerInvariant().Contains(txtSearch.Text.ToLowerInvariant()) || (track.RailDistrict?.Name != null && track.RailDistrict.Name.ToLowerInvariant().Contains(txtSearch.Text.ToLowerInvariant()));
                 }
 
                 row.Visible = visible;
@@ -127,6 +128,18 @@ namespace FleetTracking.Reports.TrackListing
                 ReportContext = new TrackListingReportContext(trackIDs) { Application = _application }
             };
             _application.OpenForm(report);
+
+            if (chkPrintBOLs.Checked)
+            {
+                Tracks.BOLRailcarPicker railcarPicker = new Tracks.BOLRailcarPicker()
+                {
+                    TrackIDs = trackIDs,
+                    Application = _application
+                };
+
+                _application.OpenForm(railcarPicker, FleetTrackingApplication.OpenFormOptions.Dialog);
+            }
+
             ParentForm.Close();
             Dispose();
         }

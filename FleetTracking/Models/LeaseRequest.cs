@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace FleetTracking.Models
 {
@@ -22,5 +23,7 @@ namespace FleetTracking.Models
         public Track TrackDeliveryLocation { get; set; }
         public string Purpose { get; set; }
         public DateTime? BidEndTime { get; set; }
+
+        public List<LeaseBid> LeaseBids { get; set; } = new List<LeaseBid>();
     }
 }

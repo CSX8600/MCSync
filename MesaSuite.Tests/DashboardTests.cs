@@ -16,7 +16,7 @@ namespace MesaSuite.Tests
             frmMain main = new frmMain();
             FlowLayoutPanel flowLayoutPanel = main.Controls.OfType<FlowLayoutPanel>().First();
             List<Panel> panelsInLayout = flowLayoutPanel.Controls.OfType<Panel>().ToList();
-            Dictionary<Panel, string> permissionsDictionary = main.GetProgramKeyForButton();
+            Dictionary<Panel, frmMain.ProgramData> permissionsDictionary = main.GetProgramKeyForButton();
 
             StringBuilder missingSecuredButtons = new StringBuilder();
             foreach(Panel panel in panelsInLayout.Except(permissionsDictionary.Keys))

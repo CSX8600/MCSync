@@ -13,7 +13,7 @@ namespace API_Company.Controllers
 {
     [MesabrookAuthorization]
     [ProgramAccess("company")]
-    [LocationAccess(RequiredPermissions = new[] { nameof(LocationEmployee.ManagePrices) })]
+    [LocationAccess(OptionalPermissions = new[] { nameof(LocationEmployee.ManagePrices), nameof(LocationEmployee.ManagePurchaseOrders) })]
     public class LocationItemController : DataObjectController<LocationItem>
     {
         private long CompanyID => long.Parse(Request.Headers.GetValues("CompanyID").First());
@@ -23,6 +23,7 @@ namespace API_Company.Controllers
         {
             li.LocationItemID,
             li.LocationID,
+            li.GovernmentID,
             li.ItemID,
             li.BasePrice,
             li.Quantity,

@@ -1,11 +1,13 @@
 ﻿using MesaSuite.Common;
 using MesaSuite.Common.Extensions;
+using MesaSuite.Common.Utility;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Text;
 using System.Linq;
 using System.Media;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
@@ -30,16 +32,22 @@ namespace MesaSuite
             InitializeComponent();
         }
 
-        public Dictionary<Panel, string> GetProgramKeyForButton()
+        private Dictionary<Panel, ProgramData> _programKeysForButton = null;
+        public Dictionary<Panel, ProgramData> GetProgramKeyForButton()
         {
-            return new Dictionary<Panel, string>()
+            if (_programKeysForButton == null)
             {
-                { pnlMCSync, "" },
-                { pnlSystemManagement, "system" },
-                { pnlCompanyStudio, "company" },
-                { pnlGovernmentPortal, "gov" },
-                { pnlTowing, "tow" }
-            };
+                _programKeysForButton = new Dictionary<Panel, ProgramData>()
+                {
+                    { pnlMCSync, new ProgramData("", "MCSync", MCSync.Program.Main) },
+                    { pnlSystemManagement, new ProgramData("system", "System Management", SystemManagement.Program.Main) },
+                    { pnlCompanyStudio, new ProgramData("company", "Company Studio", CompanyStudio.Program.Main, CompanyStudio.Program.GetOrCreateRunByURIEngine) },
+                    { pnlGovernmentPortal, new ProgramData("gov", "Government Portal", GovernmentPortal.Program.Main) },
+                    { pnlTowing, new ProgramData("tow", "Towing", Towing.Program.Main) }
+                };
+            }
+
+            return _programKeysForButton;
         }
 
         private void cmdLogIn_ButtonClick(object sender, EventArgs e)
@@ -103,12 +111,13 @@ namespace MesaSuite
 
             UpdateLook();
 
+            PerformRunURI(true);
             Authentication_OnProgramUpdate(sender, e);
         }
 
         private void Authentication_OnProgramUpdate(object sender, EventArgs e)
         {
-            Dictionary<Panel, string> programKeysForButton = GetProgramKeyForButton();
+            Dictionary<Panel, ProgramData> programKeysForButton = GetProgramKeyForButton();
             foreach(Panel panel in flow.Controls.OfType<Panel>())
             {
                 if (!programKeysForButton.ContainsKey(panel))
@@ -116,12 +125,58 @@ namespace MesaSuite
                     continue;
                 }
 
-                string requiredProgramKey = programKeysForButton[panel];
+                string requiredProgramKey = programKeysForButton[panel].Name;
 
                 Invoke(new MethodInvoker(() =>
                 {
                     panel.Visible = string.IsNullOrEmpty(requiredProgramKey) || Authentication.Programs.Contains(requiredProgramKey);
                 }));
+            }
+
+            if (!(sender is frmMain))
+            {
+                PerformRunURI();
+            }
+        }
+
+        private bool _ranURI = false;
+        public void PerformRunURI(bool isFromLoad = false, bool forceRun = false)
+        {
+            if (_ranURI && !forceRun)
+            {
+                return;
+            }
+
+            // Sometimes the program keys are already loaded, sometimes they're not.
+            // If they're not, or if the user doesn't have access to any programs, let's wait for the actual program update to make doubly sure
+            if (isFromLoad && Authentication.AuthenticationStatus == Authentication.AuthenticationStatuses.LoggedIn && !Authentication.Programs.Any())
+            {
+                return;
+            }
+
+            _ranURI = true;
+
+            if (StartupArguments.RunUri != null)
+            {
+                string program = StartupArguments.RunUri.Authority;
+                if (!string.IsNullOrEmpty(program))
+                {
+                    ProgramData programData = GetProgramKeyForButton().Values.FirstOrDefault(v => v.Name.Equals(program, StringComparison.OrdinalIgnoreCase));
+                    if (programData != null)
+                    {
+                        if (Authentication.AuthenticationStatus != Authentication.AuthenticationStatuses.LoggedIn)
+                        {
+                            Authentication.GetAuthToken(true, programData.DisplayName);
+                            _ranURI = false; // We'll need to let the program update handle this
+                            return;
+                        }
+
+                        if (Authentication.AuthenticationStatus == Authentication.AuthenticationStatuses.LoggedIn && Authentication.Programs.Contains(program))
+                        {
+                            StartProgram(programData);
+                        }
+                    }
+                }
             }
         }
 
@@ -158,11 +213,21 @@ namespace MesaSuite
             MCSync.Program.Main(StartupArguments.GetArgsForApp("mcsync"));
         }
 
-        private void StartProgram(Action method)
+        private void StartProgram(ProgramData programData)
         {
-            Thread thread = new Thread(new ThreadStart(method));
+            if (programData.LastThread?.ThreadState == ThreadState.Running)
+            {
+                programData.RunByURIEngineGetter?.Invoke().CheckArgsForRun(StartupArguments.GetArgsForApp(programData.Name));
+                StartupArguments.RunUri = null;
+                return;
+            }
+
+            Thread thread = new Thread(new ThreadStart(() => programData.LaunchAction(StartupArguments.GetArgsForApp(programData.Name))));
             thread.SetApartmentState(ApartmentState.STA);
+            programData.LastThread = thread;
             thread.Start();
+            programData.RunByURIEngineGetter?.Invoke().CheckArgsForRun(StartupArguments.GetArgsForApp(programData.Name));
+            StartupArguments.RunUri = null;
         }
 
         private void pboxMCSync_MouseEnter(object sender, EventArgs e)
@@ -180,7 +245,7 @@ namespace MesaSuite
         private void pboxMCSync_Click(object sender, EventArgs e)
         {
             PlayButtonClickSound();
-            StartProgram(StartMCSync);
+            StartProgram(GetProgramKeyForButton()[pnlMCSync]);
         }
 
         private void pnlUserBtn_MouseEnter(object sender, EventArgs e)
@@ -250,7 +315,7 @@ namespace MesaSuite
 
         private void pboxUserManagement_Click(object sender, EventArgs e)
         {
-            StartProgram(() => SystemManagement.Program.Main(StartupArguments.GetArgsForApp("usermanagement")));
+            StartProgram(GetProgramKeyForButton()[pnlSystemManagement]);
             PlayButtonClickSound();
         }
 
@@ -293,7 +358,7 @@ namespace MesaSuite
         private void pboxCompanyStudio_Click(object sender, EventArgs e)
         {
             PlayButtonClickSound();
-            StartProgram(() => CompanyStudio.Program.Main(StartupArguments.GetArgsForApp("company")));
+            StartProgram(GetProgramKeyForButton()[pnlCompanyStudio]);
         }
 
         private void pboxCompanyStudio_MouseEnter(object sender, EventArgs e)
@@ -328,7 +393,7 @@ namespace MesaSuite
         private void pboxGovernmentPortal_Click(object sender, EventArgs e)
         {
             PlayButtonClickSound();
-            StartProgram(() => GovernmentPortal.Program.Main(StartupArguments.GetArgsForApp("government")));
+            StartProgram(GetProgramKeyForButton()[pnlGovernmentPortal]);
         }
 
         private void pboxGovernmentPortal_MouseEnter(object sender, EventArgs e)
@@ -396,7 +461,7 @@ namespace MesaSuite
 
         private void pboxTowing_Click(object sender, EventArgs e)
         {
-            StartProgram(() => Towing.Program.Main(StartupArguments.GetArgsForApp("tow")));
+            StartProgram(GetProgramKeyForButton()[pnlTowing]);
             PlayButtonClickSound();
         }
 
@@ -436,6 +501,27 @@ namespace MesaSuite
             UserPreferences userPreferences = UserPreferences.Get();
             userPreferences.GetPreferencesForSection("mcsync")["dynamicSplashScreen"] = dynamicSplashScreensToolStripMenuItem.Checked;
             userPreferences.Save();
+        }
+
+        public class ProgramData
+        {
+            public string Name { get; set; }
+            public string DisplayName { get; set; }
+            public Action<string[]> LaunchAction { get; set; }
+            public Func<RunByURIEngine> RunByURIEngineGetter { get; set; }
+            public Thread LastThread { get; set; }
+
+            public ProgramData(string name, string displayName, Action<string[]> launchAction)
+            {
+                Name = name;
+                DisplayName = displayName;
+                LaunchAction = launchAction;
+            }
+
+            public ProgramData(string name, string displayName, Action<string[]> launchAction, Func<RunByURIEngine> runByURIEngineGetter) : this(name, displayName, launchAction)
+            {
+                RunByURIEngineGetter = runByURIEngineGetter;
+            }
         }
     }
 }

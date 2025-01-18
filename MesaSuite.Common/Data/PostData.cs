@@ -58,6 +58,11 @@ namespace MesaSuite.Common.Data
                     jObject.Add(new JProperty("requestfields", RequestFields));
                 }
 
+                if (AdditionalFields != null && AdditionalFields.Any())
+                {
+                    jObject.Add(new JProperty("additionalfields", AdditionalFields));
+                }
+
                 using (StreamWriter writer = new StreamWriter(request.GetRequestStream()))
                 {
                     await writer.WriteAsync(jObject.ToString());

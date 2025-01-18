@@ -8,8 +8,8 @@ namespace GovernmentPortal.Models
 {
     public class Account
     {
-        public long AccountID { get; set; }
-        public long GovernmentID { get; set; }
+        public long? AccountID { get; set; }
+        public long? GovernmentID { get; set; }
         public long? CategoryID { get; set; }
         public string Description { get; set; }
         public string AccountNumber { get; set; }

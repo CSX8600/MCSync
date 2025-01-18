@@ -28,6 +28,7 @@ namespace FleetTracking.Leasing
         public FleetTrackingApplication Application { set => _application = value; }
 
         public long? LeaseRequestID { get; set; }
+        public bool CloseOnSave { get; set; }
 
         public LeaseRequestDetail()
         {
@@ -77,6 +78,8 @@ namespace FleetTracking.Leasing
 
                 if (leaseRequest == null)
                 {
+                    ParentForm.Text = "New Lease Request";
+
                     (long?, long?) companyIDGovernmentID = _application.GetCurrentCompanyIDGovernmentID();
                     if (companyIDGovernmentID.Item1 != null)
                     {
@@ -97,6 +100,8 @@ namespace FleetTracking.Leasing
                 }
                 else
                 {
+                    ParentForm.Text = $"Lease Request ({leaseRequest.LeaseRequestID})";
+
                     txtRequester.Text = leaseRequest.CompanyRequester?.Name ?? leaseRequest.GovernmentRequester?.Name;
                     cboChargeTo.Text = leaseRequest.LocationChargeTo?.Name;
                 }
@@ -317,6 +322,11 @@ namespace FleetTracking.Leasing
                 {
                     LeaseRequestID = postedLR.LeaseRequestID;
                     OnSave?.Invoke(this, EventArgs.Empty);
+                    if (CloseOnSave)
+                    {
+                        ParentForm.Close();
+                        return;
+                    }
                     LoadData();
                 }
             }
@@ -330,6 +340,11 @@ namespace FleetTracking.Leasing
                 if (put.RequestSuccessful)
                 {
                     OnSave?.Invoke(this, EventArgs.Empty);
+                    if (CloseOnSave)
+                    {
+                        ParentForm.Close();
+                        return;
+                    }
                     LoadData();
                 }
             }

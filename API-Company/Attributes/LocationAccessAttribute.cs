@@ -19,6 +19,17 @@ namespace API_Company.Attributes
         public string[] OptionalPermissions { get; set; }
         public override async Task OnActionExecutingAsync(HttpActionContext actionContext, CancellationToken cancellationToken)
         {
+            if (actionContext.ActionDescriptor.GetCustomAttributes<LocationAccessAttribute>().Count > 0)
+            {
+                await actionContext.ActionDescriptor.GetCustomAttributes<LocationAccessAttribute>()[0].InternalOnActionExecutingAsync(actionContext, cancellationToken);
+                return;
+            }
+
+            await InternalOnActionExecutingAsync(actionContext, cancellationToken);
+        }
+
+        private async Task InternalOnActionExecutingAsync(HttpActionContext actionContext, CancellationToken cancellationToken)
+        {
             HttpResponseMessage unauthorizedResponse = await MesabrookAuthorizationAttribute.CheckHeadersForSecurity(actionContext);
 
             if (unauthorizedResponse != null)

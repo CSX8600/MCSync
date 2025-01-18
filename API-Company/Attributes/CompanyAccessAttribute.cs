@@ -20,6 +20,17 @@ namespace API_Company.Attributes
 
         public override async Task OnActionExecutingAsync(HttpActionContext actionContext, CancellationToken cancellationToken)
         {
+            if (actionContext.ActionDescriptor.GetCustomAttributes<CompanyAccessAttribute>().Count > 0)
+            {
+                await actionContext.ActionDescriptor.GetCustomAttributes<CompanyAccessAttribute>()[0].InternalOnActionExecutingAsync(actionContext, cancellationToken);
+                return;
+            }
+
+            await InternalOnActionExecutingAsync(actionContext, cancellationToken);
+        }
+
+        private async Task InternalOnActionExecutingAsync(HttpActionContext actionContext, CancellationToken cancellationToken)
+        {
             HttpResponseMessage unauthorizedResponse = await MesabrookAuthorizationAttribute.CheckHeadersForSecurity(actionContext);
 
             if (unauthorizedResponse != null)
@@ -59,8 +70,6 @@ namespace API_Company.Attributes
                     return;
                 }
             }
-
-            base.OnActionExecuting(actionContext);
         }
     }
 }

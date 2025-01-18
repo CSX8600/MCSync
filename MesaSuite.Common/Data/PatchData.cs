@@ -79,7 +79,8 @@ namespace MesaSuite.Common.Data
                     PrimaryKey = _primaryKey,
                     Method = _patchMethod.GetValue(),
                     Values = _values,
-                    RequestFields = RequestFields
+                    RequestFields = RequestFields,
+                    AdditionalFields = AdditionalFields
                 });
 
                 writer.Write(patchRequest);

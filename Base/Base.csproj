@@ -45,6 +45,7 @@
     <Compile Include="BaseConfig.cs" />
     <Compile Include="Data\Operand\Count.cs" />
     <Compile Include="Data\Operand\IsNull.cs" />
+    <Compile Include="Data\Operand\Subtraction.cs" />
     <Compile Include="Data\Operand\Sum.cs" />
     <Compile Include="Data\TableAlias.cs" />
     <Compile Include="Data\Conditions\ConditionGroup.cs" />

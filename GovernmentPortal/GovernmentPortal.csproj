@@ -147,6 +147,25 @@
       <DependentUpon>frmSelectGovernment.cs</DependentUpon>
     </Compile>
     <Compile Include="IExplorerControl.cs" />
+    <Compile Include="Invoicing\AutomaticPaymentControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Invoicing\AutomaticPaymentControl.Designer.cs">
+      <DependentUpon>AutomaticPaymentControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Invoicing\AutomaticPaymentsContext.cs" />
+    <Compile Include="Invoicing\frmAutomaticPaymentsCloneToPicker.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Invoicing\frmAutomaticPaymentsCloneToPicker.Designer.cs">
+      <DependentUpon>frmAutomaticPaymentsCloneToPicker.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Invoicing\frmAutomaticPaymentsSelectPayees.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Invoicing\frmAutomaticPaymentsSelectPayees.Designer.cs">
+      <DependentUpon>frmAutomaticPaymentsSelectPayees.cs</DependentUpon>
+    </Compile>
     <Compile Include="Invoicing\frmInvoiceConfiguration.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -167,6 +186,12 @@
     <Compile Include="ItemSelector.Designer.cs">
       <DependentUpon>ItemSelector.cs</DependentUpon>
     </Compile>
+    <Compile Include="ItemSelectorInput.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ItemSelectorInput.Designer.cs">
+      <DependentUpon>ItemSelectorInput.cs</DependentUpon>
+    </Compile>
     <Compile Include="Law\frmLawEditor.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -176,10 +201,15 @@
     <Compile Include="Law\frmLawEditor.Designer.cs">
       <DependentUpon>frmLawEditor.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\AutomaticInvoicePaymentConfiguration.cs" />
     <Compile Include="Models\Company.cs" />
     <Compile Include="Models\DebitCard.cs" />
     <Compile Include="Models\EmailImplementation.cs" />
     <Compile Include="Models\EmailTemplate.cs" />
+    <Compile Include="Models\Fulfillment.cs" />
+    <Compile Include="Models\FulfillmentPlan.cs" />
+    <Compile Include="Models\FulfillmentPlanPurchaseOrderLine.cs" />
+    <Compile Include="Models\FulfillmentPlanRoute.cs" />
     <Compile Include="Models\InterestConfiguration.cs" />
     <Compile Include="Models\Invoice.cs" />
     <Compile Include="Models\InvoiceLine.cs" />
@@ -208,7 +238,17 @@
     <Compile Include="Models\Law.cs" />
     <Compile Include="Models\LawSection.cs" />
     <Compile Include="Models\Location.cs" />
+    <Compile Include="Models\LocationItem.cs" />
     <Compile Include="Models\Official.cs" />
+    <Compile Include="Models\Promotion.cs" />
+    <Compile Include="Models\PromotionLocationItem.cs" />
+    <Compile Include="Models\PurchaseOrder.cs" />
+    <Compile Include="Models\PurchaseOrderApproval.cs" />
+    <Compile Include="Models\PurchaseOrderLine.cs" />
+    <Compile Include="Models\PurchaseOrderTemplate.cs" />
+    <Compile Include="Models\PurchaseOrderTemplateFolder.cs" />
+    <Compile Include="Models\Quotation.cs" />
+    <Compile Include="Models\QuotationItem.cs" />
     <Compile Include="Models\SalesTax.cs" />
     <Compile Include="Models\Transaction.cs" />
     <Compile Include="Models\User.cs" />
@@ -223,6 +263,61 @@
     <Compile Include="PermissionsManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Purchasing\frmPriceManager.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Purchasing\frmPriceManager.Designer.cs">
+      <DependentUpon>frmPriceManager.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Purchasing\frmPurchaseOrderShell.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Purchasing\frmPurchaseOrderShell.Designer.cs">
+      <DependentUpon>frmPurchaseOrderShell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Purchasing\PurchaseOrderScreen\Draft\Draft.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Purchasing\PurchaseOrderScreen\Draft\Draft.Designer.cs">
+      <DependentUpon>Draft.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Purchasing\PurchaseOrderScreen\Draft\DraftLine.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Purchasing\PurchaseOrderScreen\Draft\DraftLine.Designer.cs">
+      <DependentUpon>DraftLine.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Purchasing\PurchaseOrderScreen\Draft\frmDraftFulfillmentPlan.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Purchasing\PurchaseOrderScreen\Draft\frmDraftFulfillmentPlan.Designer.cs">
+      <DependentUpon>frmDraftFulfillmentPlan.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Purchasing\PurchaseOrderScreen\Draft\frmDraftFulfillmentPlans.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Purchasing\PurchaseOrderScreen\Draft\frmDraftFulfillmentPlans.Designer.cs">
+      <DependentUpon>frmDraftFulfillmentPlans.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Purchasing\PurchaseOrderScreen\Draft\frmDraftRailcarSelect.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Purchasing\PurchaseOrderScreen\Draft\frmDraftRailcarSelect.Designer.cs">
+      <DependentUpon>frmDraftRailcarSelect.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Purchasing\PurchaseOrderScreen\Draft\frmLeaseRequestSelect.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Purchasing\PurchaseOrderScreen\Draft\frmLeaseRequestSelect.Designer.cs">
+      <DependentUpon>frmLeaseRequestSelect.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Purchasing\PurchaseOrderScreen\IHasShellReference.cs" />
+    <Compile Include="Purchasing\PurchaseOrderScreen\Draft\NoneSelected.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Purchasing\PurchaseOrderScreen\Draft\NoneSelected.Designer.cs">
+      <DependentUpon>NoneSelected.cs</DependentUpon>
+    </Compile>
     <Compile Include="Taxes\SalesTaxContext.cs" />
     <Compile Include="Taxes\SalesTaxControl.cs">
       <SubType>UserControl</SubType>
@@ -284,6 +379,15 @@
     <EmbeddedResource Include="frmSelectGovernment.resx">
       <DependentUpon>frmSelectGovernment.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Invoicing\AutomaticPaymentControl.resx">
+      <DependentUpon>AutomaticPaymentControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Invoicing\frmAutomaticPaymentsCloneToPicker.resx">
+      <DependentUpon>frmAutomaticPaymentsCloneToPicker.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Invoicing\frmAutomaticPaymentsSelectPayees.resx">
+      <DependentUpon>frmAutomaticPaymentsSelectPayees.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Invoicing\frmInvoiceConfiguration.resx">
       <DependentUpon>frmInvoiceConfiguration.cs</DependentUpon>
     </EmbeddedResource>
@@ -295,6 +399,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ItemSelector.resx">
       <DependentUpon>ItemSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ItemSelectorInput.resx">
+      <DependentUpon>ItemSelectorInput.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Law\frmLawEditor.resx">
       <DependentUpon>frmLawEditor.cs</DependentUpon>
@@ -315,6 +422,33 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="Purchasing\frmPriceManager.resx">
+      <DependentUpon>frmPriceManager.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Purchasing\frmPurchaseOrderShell.resx">
+      <DependentUpon>frmPurchaseOrderShell.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Purchasing\PurchaseOrderScreen\Draft\Draft.resx">
+      <DependentUpon>Draft.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Purchasing\PurchaseOrderScreen\Draft\DraftLine.resx">
+      <DependentUpon>DraftLine.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Purchasing\PurchaseOrderScreen\Draft\frmDraftFulfillmentPlan.resx">
+      <DependentUpon>frmDraftFulfillmentPlan.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Purchasing\PurchaseOrderScreen\Draft\frmDraftFulfillmentPlans.resx">
+      <DependentUpon>frmDraftFulfillmentPlans.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Purchasing\PurchaseOrderScreen\Draft\frmDraftRailcarSelect.resx">
+      <DependentUpon>frmDraftRailcarSelect.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Purchasing\PurchaseOrderScreen\Draft\frmLeaseRequestSelect.resx">
+      <DependentUpon>frmLeaseRequestSelect.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Purchasing\PurchaseOrderScreen\Draft\NoneSelected.resx">
+      <DependentUpon>NoneSelected.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Taxes\SalesTaxControl.resx">
       <DependentUpon>SalesTaxControl.cs</DependentUpon>
     </EmbeddedResource>

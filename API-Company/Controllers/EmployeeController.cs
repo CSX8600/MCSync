@@ -1,13 +1,14 @@
-﻿using API.Common;
-using API.Common.Attributes;
-using API.Common.Extensions;
-using API_Company.Attributes;
-using ClussPro.ObjectBasedFramework;
-using ClussPro.ObjectBasedFramework.DataSearch;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
+using API.Common;
+using API.Common.Attributes;
+using API.Common.Extensions;
+using API_Company.Attributes;
+using API_Company.Models;
+using ClussPro.ObjectBasedFramework;
+using ClussPro.ObjectBasedFramework.DataSearch;
 using WebModels.company;
 using WebModels.fleet;
 using WebModels.security;
@@ -175,6 +176,13 @@ namespace API_Company.Controllers
             }
 
             return Ok();
+        }
+
+
+        [HttpGet]
+        public async Task<List<EmployeeToDoItem>> GetToDoItems()
+        {
+            return await EmployeeToDoItem.GetForUserID(SecurityProfile.UserID);
         }
     }
 }

@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing.Text;
 using System.IO;
+using System.IO.Pipes;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -19,6 +21,9 @@ namespace MesaSuite
         /// The main entry point for the application.
         /// </summary>
         private static List<Updater.MCSyncVersion> updates = new List<Updater.MCSyncVersion>();
+        private const string MUTEX_ID = "MesaSuiteFEA8712FFBC5450B958E5A88EB6160B3";
+        private const string PipeName = "MesaSuiteB64CBD3D41794E02989558153B4995CD";
+        private static Thread _mutexPipedServerThread;
         [STAThread]
         static void Main(string[] args)
         {
@@ -35,6 +40,18 @@ namespace MesaSuite
             if (!string.IsNullOrEmpty(StartupArguments.FolderToDelete) && Directory.Exists(StartupArguments.FolderToDelete))
             {
                 Directory.Delete(StartupArguments.FolderToDelete, true);
+            }
+
+            Mutex mutex = new Mutex(true, MUTEX_ID, out bool isNewInstance);
+            if (!isNewInstance)
+            {
+                if (StartupArguments.RunUri == null)
+                {
+                    StartupArguments.RunUri = new Uri("mesasuite://dashboard");
+                }
+
+                NotifyOtherInstance();
+                return;
             }
 
             // Splash screen logic
@@ -87,6 +104,25 @@ namespace MesaSuite
             }
         }
 
+        private static void NotifyOtherInstance()
+        {
+            using(NamedPipeClientStream clientStream = new NamedPipeClientStream(".", PipeName, PipeDirection.Out))
+            {
+                try
+                {
+                    clientStream.Connect(1000);
+                    using(var writer = new StreamWriter(clientStream))
+                    {
+                        writer.WriteLine(StartupArguments.RunUri.ToString());
+                    }
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine($"Failed to notify other instance: {ex.Message}");
+                }
+            }
+        }
+
         private static void RunOther()
         {
             switch(StartupArguments.Run)
@@ -106,6 +142,7 @@ namespace MesaSuite
 
             InitCustomLabelFont();
             Authentication.Initialize();
+            StartMutexPipedServerThread();
 
             while (task.Status == TaskStatus.Running)
             {
@@ -127,6 +164,7 @@ namespace MesaSuite
         private static void Application_ApplicationExit(object sender, EventArgs e)
         {
             Authentication.Shutdown();
+            _mutexPipedServerThread?.Abort(); 
         }
 
         private static void InitCustomLabelFont()
@@ -146,6 +184,51 @@ namespace MesaSuite
             catch (Exception ex)
             {
                 MessageBox.Show("An error occurred:\r\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private static void StartMutexPipedServerThread()
+        {
+            _mutexPipedServerThread = new Thread(new ThreadStart(MutexPipedServer));
+            _mutexPipedServerThread.IsBackground = true;
+            _mutexPipedServerThread.Start();
+        }
+
+        private static void MutexPipedServer()
+        {
+            while (true)
+            {
+                using (NamedPipeServerStream namedPipeServer = new NamedPipeServerStream(PipeName, PipeDirection.In))
+                {
+                    namedPipeServer.WaitForConnection();
+
+                    string uriMessage;
+                    using (StreamReader reader = new StreamReader(namedPipeServer))
+                    {
+                        uriMessage = reader.ReadToEnd();
+                    }
+
+                    try
+                    {
+                        namedPipeServer.Disconnect();
+                    }
+                    catch { }
+
+                    if (Uri.TryCreate(uriMessage, UriKind.Absolute, out Uri uri))
+                    {
+                        StartupArguments.RunUri = uri;
+
+                        frmMain main = Application.OpenForms.OfType<frmMain>().FirstOrDefault();
+                        if (main != null)
+                        {
+                            try
+                            {
+                                main.PerformRunURI(forceRun: true);
+                            }
+                            catch { }
+                        }
+                    }
+                }
             }
         }
     }

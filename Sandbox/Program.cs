@@ -25,7 +25,36 @@ namespace Sandbox
     {
         static void Main(string[] args)
         {
-            TestDeviceAuth();
+            //TestDeviceAuth();
+
+            Console.WriteLine("Enter resource name to test.  Type 'quit' to exit.");
+
+            string enteredResource = "";
+            while(enteredResource != "quit")
+            {
+                enteredResource = Console.ReadLine();
+                Console.Clear();
+
+                try
+                {
+                    HttpWebRequest webRequest = WebRequest.CreateHttp("http://localhost:58480/company/PriceCheck/" + enteredResource);
+                    webRequest.Method = "GET";
+                    HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
+                    string responseText;
+                    using (StreamReader reader = new StreamReader(response.GetResponseStream()))
+                    {
+                        responseText = reader.ReadToEnd();
+                    }
+
+                    response.Dispose();
+                    Console.WriteLine(responseText);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"An exception occurred: {ex.ToString()}");
+                }
+            }
+
 
             Console.WriteLine("Done!");
             Console.ReadKey();

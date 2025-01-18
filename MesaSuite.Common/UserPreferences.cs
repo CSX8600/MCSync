@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Windows.Forms;
 using MesaSuite.Common.Extensions;
 using Newtonsoft.Json;
 
@@ -43,7 +44,14 @@ namespace MesaSuite.Common
             using (StreamReader reader = new StreamReader("userpreferences.json"))
             using (JsonTextReader jsonReader = new JsonTextReader(reader))
             {
-                serializer.Populate(jsonReader, this);
+                try
+                {
+                    serializer.Populate(jsonReader, this);
+                }
+                catch(Exception ex)
+                {
+                    MessageBox.Show("An error occurred trying to read your userpreferences.json: " + ex.Message + "\r\n\r\nIt will not be loaded.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
                 jsonReader.Close();
             }
         }

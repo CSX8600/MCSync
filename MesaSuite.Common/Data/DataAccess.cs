@@ -25,7 +25,9 @@ namespace MesaSuite.Common.Data
         public bool RequireAuthentication { internal get; set; } = true;
         public Dictionary<string, string> Headers { get; set; } = new Dictionary<string, string>();
         public List<string> RequestFields { get; set; } = new List<string>();
+        public List<string> AdditionalFields { get; set; } = new List<string>();
         public bool SuppressErrors { get; set; }
+        public string LastError { get; private set; }
 
         public DataAccess(APIs api, string resource)
         {
@@ -60,6 +62,8 @@ namespace MesaSuite.Common.Data
         protected delegate Task<string> ResponseWebExceptionRetryCallback();
         protected Task<string> HandleResponseWebException(WebException ex, ResponseWebExceptionRetryCallback retryCallback)
         {
+            LastError = null;
+
             if (ex.Response != null)
             {
                 HttpWebResponse response = (HttpWebResponse)ex.Response;
@@ -73,9 +77,10 @@ namespace MesaSuite.Common.Data
                     }
                     else
                     {
+                        LastError = "You must sign in to view this content";
                         if (!SuppressErrors)
                         {
-                            MessageBox.Show("You must sign in to view this content", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            MessageBox.Show(LastError, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                         RequestSuccessful = false;
                         return Task.FromResult<string>(null);
@@ -84,9 +89,10 @@ namespace MesaSuite.Common.Data
 
                 if (response.StatusCode == HttpStatusCode.Forbidden)
                 {
+                    LastError = "You do not have sufficient permissions to view this content";
                     if (!SuppressErrors)
                     {
-                        MessageBox.Show("You do not have sufficient permissions to view this content", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(LastError, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                     RequestSuccessful = false;
                     return Task.FromResult<string>(null);
@@ -108,7 +114,7 @@ namespace MesaSuite.Common.Data
                         }
                         catch { }
 
-                        if (!string.IsNullOrWhiteSpace(messageObject.Message))
+                        if (!string.IsNullOrWhiteSpace(messageObject?.Message))
                         {
                             errorText = new StringBuilder(messageObject.Message);
                         }
@@ -119,9 +125,10 @@ namespace MesaSuite.Common.Data
                         }
                     }
 
+                    LastError = errorText.ToString();
                     if (!SuppressErrors)
                     {
-                        MessageBox.Show(errorText.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(LastError, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                     RequestSuccessful = false;
                     return Task.FromResult<string>(null);
@@ -129,9 +136,10 @@ namespace MesaSuite.Common.Data
 
                 if (response.StatusCode == HttpStatusCode.NotFound)
                 {
+                    LastError = "The resource you requested was not found";
                     if (!SuppressErrors)
                     {
-                        MessageBox.Show("The resource you requested was not found", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(LastError, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                     RequestSuccessful = false;
                     return Task.FromResult<string>(null);

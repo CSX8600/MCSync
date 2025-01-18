@@ -28,7 +28,7 @@ namespace CompanyStudio.CompanyForms
 
         public event EventHandler OnSave;
 
-        public async void Save()
+        public async Task Save()
         {
             loader.BringToFront();
             loader.Visible = true;

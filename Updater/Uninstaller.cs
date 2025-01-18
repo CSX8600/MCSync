@@ -157,6 +157,18 @@ namespace Updater
                 {
                     _errors.Add("MesaSuite was successfully removed from the system, however, the registry could not be updated.  This means that MesaSuite will remain in your Add/Remove Programs window even though it does not exist.");
                 }
+
+                string protocolSubKey = Program.InternalEdition ? "mesasuiteie" : "mesasuite";
+                try
+                {
+                    RegistryKey uninstallKey = Registry.ClassesRoot;
+                    uninstallKey.DeleteSubKeyTree(protocolSubKey);
+                    uninstallKey.Close();
+                }
+                catch (Exception ex)
+                {
+                    _errors.Add($"MesaSuite was successfully removed from the system, however, the registry could not be updated.  This means that a protocol handler ({protocolSubKey}://) for MesaSuite will still exist even though MesaSuite does not.");
+                }
             });
         }
 

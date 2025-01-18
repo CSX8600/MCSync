@@ -14,6 +14,11 @@ namespace MesaService
         public ServiceInstaller()
         {
             InitializeComponent();
+            if (Program.InternalEdition)
+            {
+                serviceInstaller1.ServiceName = "MesaServiceInternalEdition";
+                serviceInstaller1.DisplayName = "MesaService (Internal Edition)";
+            }
         }
     }
 }

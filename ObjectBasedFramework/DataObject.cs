@@ -77,6 +77,8 @@ namespace ClussPro.ObjectBasedFramework
                     return false;
                 }
 
+                UpdateOneToOneRelationships(transaction);
+
                 if (!(isInsert ? SaveInsert(localTransaction) : SaveUpdate(localTransaction)))
                 {
                     return false;
@@ -360,6 +362,48 @@ namespace ClussPro.ObjectBasedFramework
             }
 
             conflicts.RemoveAll(fk => handled.Contains(fk));
+        }
+
+        protected void UpdateOneToOneRelationships(ITransaction transaction)
+        {
+            SchemaObject thisSchemaObject = Schema.Schema.GetSchemaObject(GetType());
+            foreach(Relationship relationship in thisSchemaObject.GetRelationships().Where(r => !r.OneToOneByForeignKey && r.HasForeignKey))
+            {
+                if (!IsFieldDirty(relationship.ForeignKeyField.FieldName) || GetValue(relationship.ForeignKeyField.FieldName) == null)
+                {
+                    continue;
+                }
+
+                SchemaObject relatedSchemaObject = relationship.RelatedSchemaObject;
+                IEnumerable<Relationship> oneToOneRelationships = relatedSchemaObject.GetRelationships().Where(r => r.OneToOneByForeignKey);
+                Relationship oneToOneRelationship = oneToOneRelationships.FirstOrDefault(r => r.RelatedSchemaObject == thisSchemaObject && r.OneToOneForeignKey == relationship.ForeignKeyField.FieldName);
+                if (oneToOneRelationship != null) // The foreign key we're changing is a one-to-one by foreign key on a different object. Clear foreign keys on other objects of this type
+                {
+                    Search sameForeignKeySearch = new Search(GetType(), new SearchConditionGroup(SearchConditionGroup.SearchConditionGroupTypes.And,
+                        new LongSearchCondition(GetType())
+                        {
+                            Field = relationship.ForeignKeyField.FieldName,
+                            SearchConditionType = SearchCondition.SearchConditionTypes.Equals,
+                            Value = GetValue<long?>(relationship.ForeignKeyField.FieldName)
+                        },
+                        new LongSearchCondition(GetType())
+                        {
+                            Field = PrimaryKeyField.FieldName,
+                            SearchConditionType = SearchCondition.SearchConditionTypes.NotEquals,
+                            Value = GetValue<long?>(PrimaryKeyField.FieldName) ?? -1l
+                        }));
+
+                    foreach(DataObject sameForeignKeyObject in sameForeignKeySearch.GetUntypedEditableReader(transaction))
+                    {
+                        relationship.ForeignKeyField.SetValue(sameForeignKeyObject, null);
+
+                        if (!sameForeignKeyObject.Save(transaction))
+                        {
+                            throw new InvalidOperationException($"Could not clear foreign key on related object during one-to-one by foreign key handling:\r\n{sameForeignKeyObject.Errors.ToString()}");
+                        }
+                    }
+                }
+            }
         }
 
         public bool Validate(Validator.SaveModes saveMode, List<Guid> saveFlags = null, ITransaction transaction = null)
@@ -707,12 +751,12 @@ namespace ClussPro.ObjectBasedFramework
                         query.WhereCondition = primaryKeyCondition;
                     }
 
-                    HashSet<string> childFieldsToSet = fieldsToSet.Where(f => f.StartsWith(reverseRelationshipWeCanDoSomethingAbout)).Select(f => f.Replace(reverseRelationshipWeCanDoSomethingAbout, "")).ToHashSet();
+                    HashSet<string> childFieldsToSet = fieldsToSet.Where(f => f.StartsWith(reverseRelationshipWeCanDoSomethingAbout)).Select(f => f.Substring(reverseRelationshipWeCanDoSomethingAbout.Length)).ToHashSet();
                     childFieldsToSet.Add(relationshipList.RelatedSchemaObject.PrimaryKeyField.FieldName);
                     Dictionary<string, Tuple<ISelectQuery, Dictionary<string, string>>> childQueries = new Dictionary<string, Tuple<ISelectQuery, Dictionary<string, string>>>();
                     foreach (KeyValuePair<string, Tuple<ISelectQuery, Dictionary<string, string>>> childQuery in queries.Where(kvp => kvp.Key.StartsWith(reverseRelationshipWeCanDoSomethingAbout)))
                     {
-                        childQueries.Add(childQuery.Key.Replace(reverseRelationshipWeCanDoSomethingAbout, ""), childQuery.Value);
+                        childQueries.Add(childQuery.Key.Substring(reverseRelationshipWeCanDoSomethingAbout.Length), childQuery.Value);
                     }
 
                     object reverseRelationshipList = relationshipList.GetPrivateDataCallback(parentObject);
@@ -839,7 +883,7 @@ namespace ClussPro.ObjectBasedFramework
             return field.GetValue(lastObject);
         }
 
-        public object GetValue<T>(string fieldPath)
+        public T GetValue<T>(string fieldPath)
         {
             return (T)GetValue(fieldPath);
         }

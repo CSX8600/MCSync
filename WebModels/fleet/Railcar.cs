@@ -12,10 +12,12 @@ using ClussPro.ObjectBasedFramework;
 using ClussPro.ObjectBasedFramework.DataSearch;
 using ClussPro.ObjectBasedFramework.Schema;
 using ClussPro.ObjectBasedFramework.Schema.Attributes;
+using ClussPro.ObjectBasedFramework.Utility;
 using ClussPro.ObjectBasedFramework.Validation.Attributes;
 using WebModels.company;
 using WebModels.gov;
 using WebModels.mesasys;
+using WebModels.purchasing;
 
 namespace WebModels.fleet
 {
@@ -229,11 +231,6 @@ namespace WebModels.fleet
 
         protected override bool PreSave(ITransaction transaction)
         {
-            if (IsFieldDirty(nameof(CompanyIDPossessor)) || IsFieldDirty(nameof(GovernmentIDPossessor)))
-            {
-                TrackIDStrategic = null;
-            }
-
             if (IsFieldDirty(nameof(ImageOverride)))
             {
                 using (MemoryStream inputStream = new MemoryStream(ImageOverride))
@@ -270,6 +267,8 @@ namespace WebModels.fleet
             }
             else
             {
+                bool carWasReleased = false;
+
                 if (IsFieldDirty(nameof(CompanyIDPossessor)) && CompanyIDPossessor != null)
                 {
                     MiscellaneousSettings settings = new Search<MiscellaneousSettings>(new LongSearchCondition<MiscellaneousSettings>()
@@ -283,6 +282,8 @@ namespace WebModels.fleet
                         EmailImplementation emailImplementation = DataObject.GetEditableByPrimaryKey<EmailImplementation>(settings.EmailImplementationIDCarReleased, transaction, null);
                         emailImplementation.SendEmail<Railcar>(RailcarID, transaction);
                     }
+
+                    carWasReleased = true;
                 }
 
                 if (IsFieldDirty(nameof(GovernmentIDPossessor)) && GovernmentIDPossessor != null)
@@ -298,9 +299,285 @@ namespace WebModels.fleet
                         EmailImplementation emailImplementation = DataObject.GetEditableByPrimaryKey<EmailImplementation>(settings.EmailImplementationIDCarReleased, transaction, null);
                         emailImplementation.SendEmail<Railcar>(RailcarID, transaction);
                     }
+
+                    carWasReleased = true;
+                }
+
+                if (carWasReleased && !HandleRouteAndBOLUpdates(transaction))
+                {
+                    return false;
                 }
             }
             return base.PostSave(transaction);
+        }
+
+        private bool HandleRouteAndBOLUpdates(ITransaction transaction)
+        {
+            Search<RailcarRoute> railcarRouteSearch = new Search<RailcarRoute>(new SearchConditionGroup(SearchConditionGroup.SearchConditionGroupTypes.And,
+                                    new LongSearchCondition<RailcarRoute>()
+                                    {
+                                        Field = nameof(RailcarRoute.RailcarID),
+                                        SearchConditionType = SearchCondition.SearchConditionTypes.Equals,
+                                        Value = RailcarID
+                                    },
+                                    new ByteSearchCondition<RailcarRoute>()
+                                    {
+                                        Field = nameof(RailcarRoute.SortOrder),
+                                        SearchConditionType = SearchCondition.SearchConditionTypes.Equals,
+                                        Value = 1
+                                    }));
+
+            RailcarRoute nextRoute = railcarRouteSearch.GetEditable(transaction);
+            if (nextRoute != null &&
+                (nextRoute.CompanyIDFrom == GetDirtyValue(nameof(CompanyIDPossessor)) as long? || nextRoute.GovernmentIDFrom == GetDirtyValue(nameof(GovernmentIDPossessor)) as long?) &&
+                (nextRoute.CompanyIDTo == CompanyIDPossessor || nextRoute.GovernmentIDTo == GovernmentIDPossessor))
+            {
+                if (!nextRoute.Delete(transaction))
+                {
+                    Errors.AddRange(nextRoute.Errors.ToArray());
+                    return false;
+                }
+
+                Search<RailcarRoute> nextRailcarRoutes = new Search<RailcarRoute>(new LongSearchCondition<RailcarRoute>()
+                {
+                    Field = nameof(RailcarRoute.RailcarID),
+                    SearchConditionType = SearchCondition.SearchConditionTypes.Equals,
+                    Value = nextRoute.RailcarID
+                });
+
+                byte i = 0;
+                nextRoute = null;
+                foreach(RailcarRoute route in nextRailcarRoutes.GetEditableReader(transaction).OrderBy(r => r.SortOrder))
+                {
+                    route.SortOrder = ++i;
+                    nextRoute = nextRoute ?? route;
+                    if (!route.Save(transaction))
+                    {
+                        Errors.AddRange(route.Errors.ToArray());
+                        return false;
+                    }
+                }
+
+                Search<BillOfLading> existingBillOfLadingSearch = new Search<BillOfLading>(new SearchConditionGroup(SearchConditionGroup.SearchConditionGroupTypes.And,
+                    new LongSearchCondition<BillOfLading>()
+                    {
+                        Field = nameof(BillOfLading.RailcarID),
+                        SearchConditionType = SearchCondition.SearchConditionTypes.Equals,
+                        Value = RailcarID
+                    },
+                    new DateTimeSearchCondition<BillOfLading>()
+                    {
+                        Field = nameof(BillOfLading.DeliveredDate),
+                        SearchConditionType = SearchCondition.SearchConditionTypes.Null
+                    }));
+
+                List<string> itemFields = Schema.GetSchemaObject<BillOfLadingItem>().GetFields().Select(f => nameof(BillOfLading.BillOfLadingItems) + "." + f.FieldName).ToList();
+                BillOfLading existingBillOfLading = existingBillOfLadingSearch.GetEditable(transaction, itemFields);
+                if (existingBillOfLading != null && !existingBillOfLading.Type.HasFlag(BillOfLading.Types.LastMile)) // Last mile BoLs must be manually accepted
+                {
+                    existingBillOfLading.DeliveredDate = DateTime.Now;
+                    if (!existingBillOfLading.Save(transaction))
+                    {
+                        Errors.AddRange(existingBillOfLading.Errors.ToArray());
+                        return false;
+                    }
+
+                    BillOfLading newBillOfLading = DataObjectFactory.Create<BillOfLading>();
+                    existingBillOfLading.Copy(newBillOfLading);
+                    newBillOfLading.DeliveredDate = null;
+                    newBillOfLading.CompanyIDCarrier = nextRoute.CompanyIDTo;
+                    newBillOfLading.GovernmentIDCarrier = nextRoute.GovernmentIDTo;
+                    if (!newBillOfLading.Save(transaction))
+                    {
+                        Errors.AddRange(newBillOfLading.Errors.ToArray());
+                        return false;
+                    }
+
+                    foreach(BillOfLadingItem item in existingBillOfLading.BillOfLadingItems)
+                    {
+                        BillOfLadingItem newItem = DataObjectFactory.Create<BillOfLadingItem>();
+                        item.Copy(newItem);
+                        newItem.BillOfLadingID = newBillOfLading.BillOfLadingID;
+
+                        if (!newItem.Save(transaction))
+                        {
+                            Errors.AddRange(newItem.Errors.ToArray());
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        public bool CompleteReceiving(ITransaction transaction)
+        {
+            if (!IsEditable)
+            {
+                throw new InvalidOperationException("Railcar must be editable to complete receiving.");
+            }
+
+            if (transaction == null)
+            {
+                throw new ArgumentNullException(nameof(transaction), "Transaction cannot be null.");
+            }
+
+            Search<FulfillmentPlan> fulfillmentPlanSearch = new Search<FulfillmentPlan>(new SearchConditionGroup(SearchConditionGroup.SearchConditionGroupTypes.And,
+                new LongSearchCondition<FulfillmentPlan>()
+                {
+                    Field = nameof(FulfillmentPlan.RailcarID),
+                    SearchConditionType = SearchCondition.SearchConditionTypes.Equals,
+                    Value = RailcarID
+                },
+                new ExistsSearchCondition<FulfillmentPlan>()
+                {
+                    RelationshipName = nameof(FulfillmentPlan.FulfillmentPlanPurchaseOrderLines),
+                    ExistsType = ExistsSearchCondition<FulfillmentPlan>.ExistsTypes.Exists,
+                    Condition = new DecimalSearchCondition<FulfillmentPlanPurchaseOrderLine>()
+                    {
+                        Field = FieldPathUtility.CreateFieldPathsAsList<FulfillmentPlanPurchaseOrderLine>(fppol => new List<object>() { fppol.PurchaseOrderLine.RemainingQuantity }).First(),
+                        SearchConditionType = SearchCondition.SearchConditionTypes.Greater,
+                        Value = 0
+                    }
+                }));
+
+            List<string> fulfillmentPlanFields = FieldPathUtility.CreateFieldPathsAsList<FulfillmentPlan>(fp => new List<object>()
+            {
+                fp.TrackIDLoading,
+                fp.TrackIDStrategicAfterDestination,
+                fp.FulfillmentPlanRoutes.First().SortOrder,
+                fp.FulfillmentPlanRoutes.First().CompanyIDFrom,
+                fp.FulfillmentPlanRoutes.First().GovernmentIDFrom,
+                fp.FulfillmentPlanRoutes.First().CompanyIDTo,
+                fp.FulfillmentPlanRoutes.First().GovernmentIDTo
+            });
+
+            FulfillmentPlan fulfillmentPlan = fulfillmentPlanSearch.GetEditable(transaction, fulfillmentPlanFields);
+            if (fulfillmentPlan != null) // Return to shipper
+            {
+                TrackIDDestination = fulfillmentPlan.TrackIDLoading;
+                TrackIDStrategic = fulfillmentPlan.TrackIDStrategicAfterDestination;
+
+                if (!Save(transaction))
+                {
+                    return false;
+                }
+
+                Search<RailcarRoute> deleteRouteSearch = new Search<RailcarRoute>(new LongSearchCondition<RailcarRoute>()
+                {
+                    Field = nameof(RailcarRoute.RailcarID),
+                    SearchConditionType = SearchCondition.SearchConditionTypes.Equals,
+                    Value = RailcarID
+                });
+                foreach(RailcarRoute route in deleteRouteSearch.GetEditableReader(transaction))
+                {
+                    if (!route.Delete(transaction))
+                    {
+                        Errors.AddRange(route.Errors.ToArray());
+                        return false;
+                    }
+                }
+
+                for(int i = 0; i < (fulfillmentPlan.FulfillmentPlanRoutes?.Count ?? 0); i++)
+                {
+                    FulfillmentPlanRoute planRoute = fulfillmentPlan.FulfillmentPlanRoutes.OrderByDescending(fpr => fpr.SortOrder).ElementAt(i);
+
+                    RailcarRoute newRoute = DataObjectFactory.Create<RailcarRoute>();
+                    newRoute.RailcarID = RailcarID;
+                    newRoute.SortOrder = (byte)i;
+                    newRoute.CompanyIDFrom = planRoute.CompanyIDTo;
+                    newRoute.GovernmentIDFrom = planRoute.GovernmentIDTo;
+                    newRoute.CompanyIDTo = planRoute.CompanyIDFrom;
+                    newRoute.GovernmentIDTo = planRoute.GovernmentIDFrom;
+
+                    if (!newRoute.Save(transaction))
+                    {
+                        Errors.AddRange(newRoute.Errors.ToArray());
+                        return false;
+                    }
+                }
+            }
+            else // Attempt to locate fulfillment plan by purchase order and send it to post fulfillment track. Also end lease contract
+            {
+                Search<PurchaseOrderLine> purchaseOrderLineSearch = new Search<PurchaseOrderLine>(new SearchConditionGroup(SearchConditionGroup.SearchConditionGroupTypes.And,
+                    new ExistsSearchCondition<PurchaseOrderLine>()
+                    {
+                        RelationshipName = nameof(PurchaseOrderLine.FulfillmentPlanPurchaseOrderLines),
+                        ExistsType = ExistsSearchCondition<PurchaseOrderLine>.ExistsTypes.Exists,
+                        Condition = new LongSearchCondition<FulfillmentPlanPurchaseOrderLine>()
+                        {
+                            Field = FieldPathUtility.CreateFieldPathsAsList<FulfillmentPlanPurchaseOrderLine>(fppol => new List<object>() { fppol.FulfillmentPlan.RailcarID }).First(),
+                            SearchConditionType = SearchCondition.SearchConditionTypes.Equals,
+                            Value = RailcarID
+                        }
+                    }));
+
+                purchaseOrderLineSearch.SearchOrders = new List<SearchOrder>()
+                {
+                    new SearchOrder()
+                    {
+                        OrderField = FieldPathUtility.CreateFieldPathsAsList<PurchaseOrderLine>(pol => new List<object>() { pol.PurchaseOrder.PurchaseOrderDate }).First(),
+                        OrderDirection = SearchOrder.OrderDirections.Descending
+                    }
+                };
+
+                List<string> purchaseOrderLineFields = FieldPathUtility.CreateFieldPathsAsList<PurchaseOrderLine>(pol => new List<object>()
+                {
+                    pol.FulfillmentPlanPurchaseOrderLines.First().FulfillmentPlan.RailcarID,
+                    pol.FulfillmentPlanPurchaseOrderLines.First().FulfillmentPlan.TrackIDPostFulfillment,
+                    pol.FulfillmentPlanPurchaseOrderLines.First().FulfillmentPlan.FulfillmentPlanRoutes.First().SortOrder,
+                    pol.FulfillmentPlanPurchaseOrderLines.First().FulfillmentPlan.FulfillmentPlanRoutes.First().CompanyIDFrom,
+                    pol.FulfillmentPlanPurchaseOrderLines.First().FulfillmentPlan.FulfillmentPlanRoutes.First().GovernmentIDFrom
+                });
+
+                PurchaseOrderLine purchaseOrderLine = purchaseOrderLineSearch.GetReadOnly(transaction, purchaseOrderLineFields);
+
+                if (purchaseOrderLine != null)
+                {
+                    fulfillmentPlan = purchaseOrderLine.FulfillmentPlanPurchaseOrderLines.First(fppol => fppol.FulfillmentPlan.RailcarID == RailcarID).FulfillmentPlan;
+                    TrackIDDestination = fulfillmentPlan.TrackIDPostFulfillment;
+
+                    if (fulfillmentPlan.FulfillmentPlanRoutes?.Count >= 2)
+                    {
+                        FulfillmentPlanRoute finalRoute = fulfillmentPlan.FulfillmentPlanRoutes.OrderByDescending(fpr => fpr.SortOrder).First();
+                        GovernmentIDPossessor = finalRoute.GovernmentIDFrom;
+                        CompanyIDPossessor = finalRoute.CompanyIDFrom;
+                    }
+
+                    if (!Save(transaction))
+                    {
+                        return false;
+                    }
+                }
+
+                Search<LeaseContract> leaseContractSearch = new Search<LeaseContract>(new SearchConditionGroup(SearchConditionGroup.SearchConditionGroupTypes.And,
+                    new LongSearchCondition<LeaseContract>()
+                    {
+                        Field = nameof(LeaseContract.RailcarID),
+                        SearchConditionType = SearchCondition.SearchConditionTypes.Equals,
+                        Value = RailcarID
+                    },
+                    new DateTimeSearchCondition<LeaseContract>()
+                    {
+                        Field = nameof(LeaseContract.LeaseTimeEnd),
+                        SearchConditionType = SearchCondition.SearchConditionTypes.Null
+                    }));
+
+                LeaseContract leaseContract = leaseContractSearch.GetEditable(transaction);
+                if (leaseContract != null)
+                {
+                    leaseContract.LeaseTimeEnd = DateTime.Now;
+
+                    if (!leaseContract.Save(transaction))
+                    {
+                        Errors.AddRange(leaseContract.Errors.ToArray());
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         }
 
         protected override bool PreDelete(ITransaction transaction)
@@ -452,6 +729,28 @@ namespace WebModels.fleet
         public IReadOnlyCollection<RailcarLoad> RailcarLoads
         {
             get { CheckGet(); return _railcarLoads; }
+        }
+
+        private List<RailcarRoute> _railcarRoutes = new List<RailcarRoute>();
+        [RelationshipList("FF06FFCD-873C-4EAE-9DAC-FC06139E05AB", nameof(RailcarRoute.RailcarID), AutoDeleteReferences = true)]
+        public IReadOnlyCollection<RailcarRoute> RailcarRoutes
+        {
+            get { CheckGet(); return _railcarRoutes; }
+        }
+        #endregion
+        #region purchasing
+        private List<FulfillmentPlan> _fulfillmentPlans = new List<FulfillmentPlan>();
+        [RelationshipList("D529289D-CD90-43F1-BDFA-F55A6889CC1A", nameof(FulfillmentPlan.RailcarID))]
+        public IReadOnlyCollection<FulfillmentPlan> FulfillmentPlans
+        {
+            get { CheckGet(); return _fulfillmentPlans; }
+        }
+
+        private List<BillOfLading> _billsOfLading = new List<BillOfLading>();
+        [RelationshipList("134EBF5C-C067-4C35-9A68-9BC69D9D4790", nameof(BillOfLading.RailcarID))]
+        public IReadOnlyCollection<BillOfLading> BillsOfLading
+        {
+            get { CheckGet(); return _billsOfLading; }
         }
         #endregion
         #endregion

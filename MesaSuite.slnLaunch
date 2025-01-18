@@ -1,0 +1,43 @@
+[
+  {
+    "Name": "Main Start",
+    "Projects": [
+      {
+        "Path": "DevTools\\DevTools.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "OAuth\\OAuth.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "API-MCSync\\API-MCSync.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "API-System\\API-System.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "API-Fleet\\API-Fleet.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "API-Company\\API-Company.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "API-Government\\API-Government.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "API-Towing\\API-Towing.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "MesaSuite\\MesaSuite.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

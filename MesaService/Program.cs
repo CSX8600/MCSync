@@ -10,6 +10,8 @@ namespace MesaService
 {
     static class Program
     {
+        public const bool InternalEdition = false;
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>

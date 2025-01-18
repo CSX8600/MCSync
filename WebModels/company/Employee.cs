@@ -142,6 +142,7 @@ namespace WebModels.company
             yield return $"{nameof(LocationEmployees)}.{nameof(LocationEmployee.ManageRegisters)}";
             yield return $"{nameof(LocationEmployees)}.{nameof(LocationEmployee.ManagePrices)}";
             yield return $"{nameof(LocationEmployees)}.{nameof(LocationEmployee.ManageInventory)}";
+            yield return $"{nameof(LocationEmployees)}.{nameof(LocationEmployee.ManagePurchaseOrders)}";
 
             foreach (string fleetSecurityField in fleet.FleetSecurity.SecurityFields)
             {
